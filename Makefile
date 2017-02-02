@@ -17,7 +17,7 @@ test:
 cover:
 	$(ISTANBUL) cover $(MOCHAEXEC) -- -R spec $(TESTPATH)
 docs:
-	$(DOCCO) -o docs/source index.coffee lib/*.coffee plugins/**/*.coffee
+	$(DOCCO) -o docs index.coffee
 clean:
 	rm -rf ./node_modules
 	rm -rf ./logs/*.log
