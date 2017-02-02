@@ -1,0 +1,47 @@
+{
+    "name": "dedup.js",
+    "version": "0.0.1",
+    "description": "Node.js utility to remove duplicates from the specified folders.",
+    "homepage": "http://github.com/igoramadas/dedup.js",
+    "author": "Igor Ramadas <igor@devv.com>",
+    "license": "Apache-2.0",
+    "subdomain": "dedup.js",
+    "main": "index",
+    "domains": [
+        "dedup.devv.com"
+    ],
+    "bin": {
+        "dedup.js": "./bin/dedup.js"
+    },
+    "engines": {
+        "node": "*"
+    },
+    "scripts": {
+        "docs": "make docs",
+        "cover": "make cover",
+        "test": "make test"
+    },
+    "dependencies": {
+        "coffee-script": ">= 1.12.3",
+        "async": "2.1.x"
+    },
+    "devDependencies": {
+        "betterdocco": ">= 0.7.5",
+        "chai": ">= 3.5.0",
+        "coffee-coverage": ">= 1.0.1",
+        "coveralls": ">= 2.11.15",
+        "istanbul": ">= 0.4.5",
+        "mocha": ">= 3.2.0",
+        "mocha-lcov-reporter": ">= 1.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/igoramadas/dedup.js.git"
+    },
+    "keywords": [
+        "dedup.js",
+        "dedup",
+        "deduplicator",
+        "duplicates"
+    ]
+}

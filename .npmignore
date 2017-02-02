@@ -1,0 +1,7 @@
+.DS_Store
+.history
+.idea
+.git*
+.vscode/
+docs/
+index.html
