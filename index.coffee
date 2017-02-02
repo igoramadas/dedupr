@@ -1,4 +1,4 @@
-#!/usr/bin/env node#
+#!/usr/bin/env node
 
 # Required dependencies.
 async = require "async"
@@ -6,38 +6,55 @@ crypto = require "crypto"
 fs = require "fs"
 path = require "path"
 
-# Global variables.
+# Collection of file hashes (with or without filenames, depending on --filename option).
 fileHashes = {}
-duplicates = []
-folders = []
-folderTasks = []
 
-# Create file processor queue.
+# List of duplicates.
+duplicates = []
+
+# List of folders to be scanned.
+folders = []
+
+# Create file processor queue (scan the file and get its hash based on options).
 queueProcessor = (filepath, callback) -> scanFile filepath, callback
-fileQueue = async.queue queueProcessor, 8
+fileQueue = async.queue queueProcessor, 4
+
+# File processor queue will drain once we have processed all files.
 fileQueue.drain = -> finished()
 
-# Default options, will list duplicates only, recursively.
+# Default options, will list duplicates only, using SHA1.
 options = {
     verbose: false
     removeDuplicates: false
     fast: false
     superfast: false
+    crazyfast: false
+    filename: false
     output: false
+    algorithm: "sha1"
 }
 
-# Set start time.
+# Set start time (Unix timestamp).
 startTime = Date.now()
 
 # Show help on command line (dedup.js --help).
 showHelp = ->
+    console.log ""
     console.log "dedup.js <options> <folders>"
-    console.log "  -v,  --verbose        log things as they happen"
-    console.log "  -d,  --delete         delete duplicates when found (use with care!!!)"
-    console.log "  -f,  --fast           hash first 2MB only for better performance (unsafe)"
-    console.log "  -s,  --superfast      hash first 20KB only for max performance (unsafer!)"
-    console.log "  -o,  --output         save list of duplicate files to dedup.log"
-    console.log "  -h,  --help           help me!"
+    console.log ""
+    console.log "  -v,    --verbose     log things as they happen"
+    console.log "  -d,    --delete      delete duplicates when found (use with care!!!)"
+    console.log "  -f,    --fast        hash first 5MB only for better performance (unsafe-ish)"
+    console.log "  -sf,   --superfast   hash first 500KB only for max performance (unsafer)"
+    console.log "  -cf,   --crazyfast   hash first 10KB only for max performance (very unsafe)"
+    console.log "  -fn,   --filename    only consider duplicate files with same filename"
+    console.log "  -md5,  --md5         MD5 instead of SHA1 (usually faster, might have collisions)"
+    console.log "  -o,    --output      save list of duplicate files to dedup.log"
+    console.log "  -h,    --help        help me!"
+    console.log ""
+    console.log "Please note that priority runs top to bottom. So superfast has preference"
+    console.log "over fast, and sha1 has preference over md5, for example."
+    console.log ""
 
 # Get parameters from command line.
 getParams = ->
@@ -51,8 +68,14 @@ getParams = ->
                 options.removeDuplicates = true
             when "-f", "--fast"
                 options.fast = true
-            when "-s", "--superfast"
+            when "-sf", "--superfast"
                 options.superfast = true
+            when "-cf", "--crazyfast"
+                options.crazyfast = true
+            when "-fn", "--filename"
+                options.filename = true
+            when "-md5", "--md5"
+                options.algorithm = "md5"
             when "-o", "--output"
                 options.output = true
             when "-h", "--help"
@@ -66,9 +89,9 @@ getParams = ->
         console.log "No folders were passed. Abort!"
         process.exit 0
 
-# Proccess file and gets its hash.
+# Proccess file and generate its MD5 hash.
 getFileHash = (filepath, maxBytes, callback) ->
-    hash = crypto.createHash "md5"
+    hash = crypto.createHash options.algorithm
     readStream = fs.createReadStream filepath
     bytesRead = 0
 
@@ -84,7 +107,7 @@ getFileHash = (filepath, maxBytes, callback) ->
 
         callback result
 
-    # Something went wrong?
+    # Something went wrong? Close stream and return with empty callback.
     reject = (err) ->
         console.log "Error getting MD5 hash for #{filepath}: #{err}"
 
@@ -107,13 +130,18 @@ getFileHash = (filepath, maxBytes, callback) ->
     readStream.on "end", finish
     readStream.on "error", reject
 
-# Save file hash and path to the fileHashes collection.
+# Check duplicates based on the fileHashes collection.
 saveHash = (hash, filepath) ->
+    if options.filename
+        id = "#{hash}-#{path.basename(filepath)}"
+    else
+        id = hash
+
     dup = filepath
-    existing = fileHashes[hash] || []
+    existing = fileHashes[id] || []
     existing.push filepath
 
-    fileHashes[hash] = existing
+    fileHashes[id] = existing
 
     # File already exists?
     if existing.length < 2
@@ -137,16 +165,18 @@ saveHash = (hash, filepath) ->
 
 # Verify and get hash for the specified file.
 scanFile = (filepath, callback) ->
-    if options.fast
-        readBufferSize = 2000000
+    if options.crazyfast
+        readBufferSize = 10000
     else if options.superfast
-        readBufferSize = 20000
+        readBufferSize = 500000
+    else if options.fast
+        readBufferSize = 5000000
     else
         readBufferSize = false
 
     # Get MD5 hash from file.
     getFileHash filepath, readBufferSize, (hash) ->
-        saveHash hash, filepath
+        saveHash hash, filepath if hash? and hash isnt ""
         callback()
 
 # Scan a folder to match duplicates.
@@ -223,6 +253,8 @@ run = ->
     if options.verbose
         console.log "Start time: #{startTime}"
         console.log "Options: #{JSON.stringify(options, null, 0)}"
+
+    folderTasks = []
 
     # Iterate and scan search folders.
     for folder in folders
