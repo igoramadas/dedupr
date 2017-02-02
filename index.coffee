@@ -172,7 +172,7 @@ scanFolder = (folder, callback) ->
         contents = fs.readdirSync folder
 
         if options.verbose
-            console.log "#{folder} has #{contents.length} itens."
+            console.log "#{folder} has #{contents.length} itens"
 
         scanner c for c in contents
         callback null if callback?
@@ -186,8 +186,10 @@ finished = (err, result) ->
 
     console.log ""
     console.log "Finished after #{duration} seconds!"
-    console.log "#{duplicates.length} duplicates were found."
+    console.log "#{Object.keys(fileHashes).length} unique files"
+    console.log "#{duplicates.length} duplicates"
 
+    # Save output to dedup.log?
     if options.output
         if options.removeDuplicates
             logContents = "Duplicate files found (and deleted):\n\n"
@@ -197,6 +199,12 @@ finished = (err, result) ->
         logContents += duplicates.join "\n"
 
         fs.writeFileSync "dedup.log", logContents, "utf8"
+
+        if options.verbose
+            console.log "Saved output to dedup.log"
+
+    # Bye!
+    console.log ""
 
 # Run it!
 run = ->
