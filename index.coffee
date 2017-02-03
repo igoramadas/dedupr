@@ -250,7 +250,7 @@ finished = (err, result) ->
     # Save output to dedup.log?
     if options.output
         if options.removeDuplicates
-            logContents = "Duplicate files found (and deleted):\n\n"
+            logContents = "Duplicate files found and deleted (an * before indicates error):\n\n"
         else
             logContents = "Duplicate files found:\n\n"
 
@@ -274,18 +274,15 @@ run = ->
 
     # First we get the parameters. If --help, it will end here.
     getParams()
-
-    console.log "Will search for duplicates on #{folders.length} locations."
+    console.log "Options: #{JSON.stringify(options, null, 0)}"
     console.log ""
 
-    if options.verbose
-        console.log "Start time: #{startTime}"
-        console.log "Options: #{JSON.stringify(options, null, 0)}"
-
     folderTasks = []
+    console.log "Will search for duplicates on:"
 
     # Iterate and scan search folders.
     for folder in folders
+        console.log folder
         folderTasks.push (callback) -> scanFolder folder, callback
 
     # Run run run!
