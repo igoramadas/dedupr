@@ -21,7 +21,8 @@
     },
     "dependencies": {
         "coffee-script": ">= 1.12.3",
-        "async": "2.1.x"
+        "async": "2.1.x",
+        "crypto-async": "1.0.x"
     },
     "devDependencies": {
         "betterdocco": ">= 0.7.5"
