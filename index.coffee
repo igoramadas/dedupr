@@ -55,6 +55,10 @@ showHelp = ->
     console.log "Please note that priority runs top to bottom. So superfast has preference"
     console.log "over fast, and sha1 has preference over md5, for example."
     console.log ""
+    console.log "When deleting duplicates, the first occurrence of a file is the one preserved."
+    console.log "So for example when passing dir1, dir2 and dir3, all having the exact same"
+    console.log "structure, duplicate files will be deleted from dir2 and dir3."
+    console.log ""
     console.log "Examples:"
     console.log ""
     console.log "Get duplicates on home folder, check first 500KB only, match filenames"
@@ -106,11 +110,12 @@ getFileHash = (filepath, maxBytes, callback) ->
     readStream = fs.createReadStream filepath
     bytesRead = 0
 
-    # Helper to close the read stream.
+    # Finished reading file, close the stream and generate the hash.
     finish = ->
         try
             readStream.close()
 
+            # Concatenate read data and generate hash.
             buf = Buffer.concat filedata
             hash = cryptoAsync.hash options.algorithm, buf, (err, hash) ->
                 if err?
@@ -192,7 +197,11 @@ scanFile = (filepath, callback) ->
 
     # Get MD5 hash from file.
     getFileHash filepath, readBufferSize, (hash) ->
-        saveHash hash, filepath if hash? and hash isnt ""
+        if hash? and hash isnt ""
+            saveHash hash, filepath
+        else
+            console.error "Got an empty hash for: #{filepath}"
+
         callback()
 
 # Scan a folder to match duplicates.
