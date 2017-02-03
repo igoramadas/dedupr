@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 # Required dependencies.
 async = require "async"
 cryptoAsync = require "crypto-async"
