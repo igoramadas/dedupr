@@ -1,6 +1,6 @@
 # Dedup.js
 
-Quick and smart-ish tool to find and delete duplicates (files).
+Quick and smart-ish tool to find and delete duplicate files.
 
 https://github.com/igoramadas/dedup.js
 
@@ -10,5 +10,8 @@ https://github.com/igoramadas/dedup.js
 
 ### Usage
 
-    $ dedup.js [options] directory1 directory2 directories...
+    $ dedup.js --help
 
+#### Example
+
+    $ dedup.js [options] directory1 directory2 directories...

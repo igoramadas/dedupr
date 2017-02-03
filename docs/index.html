@@ -30,7 +30,7 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-comment">#!/usr/bin/env node#</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">#!/usr/bin/env node</span></pre></div></div>
             
         </li>
         
@@ -59,14 +59,11 @@ path = <span class="hljs-built_in">require</span> <span class="hljs-string">"pat
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Global variables.</p>
+              <p>Collection of file hashes (with or without filenames, depending on –filename option).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>fileHashes = {}
-duplicates = []
-folders = []
-folderTasks = []</pre></div></div>
+            <div class="content"><div class='highlight'><pre>fileHashes = {}</pre></div></div>
             
         </li>
         
@@ -77,13 +74,11 @@ folderTasks = []</pre></div></div>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Create file processor queue.</p>
+              <p>List of duplicates.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">queueProcessor</span> = <span class="hljs-params">(filepath, callback)</span> -&gt;</span> scanFile filepath, callback
-fileQueue = async.queue queueProcessor, <span class="hljs-number">8</span>
-fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div></div>
+            <div class="content"><div class='highlight'><pre>duplicates = []</pre></div></div>
             
         </li>
         
@@ -94,17 +89,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Default options, will list duplicates only, recursively.</p>
+              <p>List of folders to be scanned.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>options = {
-    verbose: <span class="hljs-literal">false</span>
-    removeDuplicates: <span class="hljs-literal">false</span>
-    fast: <span class="hljs-literal">false</span>
-    superfast: <span class="hljs-literal">false</span>
-    output: <span class="hljs-literal">false</span>
-}</pre></div></div>
+            <div class="content"><div class='highlight'><pre>folders = []</pre></div></div>
             
         </li>
         
@@ -115,11 +104,12 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>Set start time.</p>
+              <p>Create file processor queue (scan the file and get its hash based on options).</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>startTime = Date.now()</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">queueProcessor</span> = <span class="hljs-params">(filepath, callback)</span> -&gt;</span> scanFile filepath, callback
+fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre></div></div>
             
         </li>
         
@@ -130,18 +120,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Show help on command line (dedup.js –help).</p>
+              <p>File processor queue will drain once we have processed all files.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">showHelp</span> = -&gt;</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"dedup.js &lt;options&gt; &lt;folders&gt;"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -v,  --verbose        log things as they happen"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -d,  --delete         delete duplicates when found (use with care!!!)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -f,  --fast           hash first 2MB only for better performance (unsafe)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -s,  --superfast      hash first 20KB only for max performance (unsafer!)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -o,  --output         save list of duplicate files to dedup.log"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -h,  --help           help me!"</span></pre></div></div>
+            <div class="content"><div class='highlight'><pre>fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div></div>
             
         </li>
         
@@ -151,6 +134,87 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Default options, will list duplicates only, using SHA1.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>options = {
+    verbose: <span class="hljs-literal">false</span>
+    removeDuplicates: <span class="hljs-literal">false</span>
+    fast: <span class="hljs-literal">false</span>
+    superfast: <span class="hljs-literal">false</span>
+    crazyfast: <span class="hljs-literal">false</span>
+    filename: <span class="hljs-literal">false</span>
+    output: <span class="hljs-literal">false</span>
+    algorithm: <span class="hljs-string">"sha1"</span>
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Set start time (Unix timestamp).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>startTime = Date.now()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Show help on command line (dedup.js –help).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">showHelp</span> = -&gt;</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"dedup.js &lt;options&gt; &lt;folders&gt;"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -v,    --verbose     log things as they happen"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -d,    --delete      delete duplicates when found (use with care!!!)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -f,    --fast        hash first 5MB only for better performance (unsafe-ish)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -sf,   --superfast   hash first 500KB only for max performance (unsafer)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -cf,   --crazyfast   hash first 10KB only for max performance (very unsafe)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -fn,   --filename    only consider duplicate files with same filename"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -md5,  --md5         MD5 instead of SHA1 (usually faster, might have collisions)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -o,    --output      save list of duplicate files to dedup.log"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -h,    --help        help me!"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Please note that priority runs top to bottom. So superfast has preference"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"over fast, and sha1 has preference over md5, for example."</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Examples:"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Get duplicates on home folder, check first 500KB only, match filenames"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -sf -fn /home/user"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Delete duplicates on database folder, using md5"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -d -md5 /database"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Here we pass fast, crazyfast and superfast - crazyfast has preference"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -f -cf -sf /somefolder"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Get parameters from command line.</p>
 
@@ -167,8 +231,14 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
                 options.removeDuplicates = <span class="hljs-literal">true</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-f"</span>, <span class="hljs-string">"--fast"</span>
                 options.fast = <span class="hljs-literal">true</span>
-            <span class="hljs-keyword">when</span> <span class="hljs-string">"-s"</span>, <span class="hljs-string">"--superfast"</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-sf"</span>, <span class="hljs-string">"--superfast"</span>
                 options.superfast = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-cf"</span>, <span class="hljs-string">"--crazyfast"</span>
+                options.crazyfast = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-fn"</span>, <span class="hljs-string">"--filename"</span>
+                options.filename = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-md5"</span>, <span class="hljs-string">"--md5"</span>
+                options.algorithm = <span class="hljs-string">"md5"</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-o"</span>, <span class="hljs-string">"--output"</span>
                 options.output = <span class="hljs-literal">true</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-h"</span>, <span class="hljs-string">"--help"</span>
@@ -180,11 +250,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-9">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Exit if no folders were passed.</p>
 
@@ -197,29 +267,29 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-10">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>Proccess file and gets its hash.</p>
+              <p>Proccess file and generate its MD5 hash.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">getFileHash</span> = <span class="hljs-params">(filepath, maxBytes, callback)</span> -&gt;</span>
-    hash = crypto.createHash <span class="hljs-string">"md5"</span>
+    hash = crypto.createHash options.algorithm
     readStream = fs.createReadStream filepath
     bytesRead = <span class="hljs-number">0</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-11">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Helper to close the read stream.</p>
 
@@ -239,13 +309,13 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-12">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
-              <p>Something went wrong?</p>
+              <p>Something went wrong? Close stream and return with empty callback.</p>
 
             </div>
             
@@ -262,11 +332,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-13">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Append file data to the hash.</p>
 
@@ -286,31 +356,36 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-14">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
-              <p>Save file hash and path to the fileHashes collection.</p>
+              <p>Check duplicates based on the fileHashes collection.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">saveHash</span> = <span class="hljs-params">(hash, filepath)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> options.filename
+        id = <span class="hljs-string">"<span class="hljs-subst">#{hash}</span>-<span class="hljs-subst">#{path.basename(filepath)}</span>"</span>
+    <span class="hljs-keyword">else</span>
+        id = hash
+
     dup = filepath
-    existing = fileHashes[hash] || []
+    existing = fileHashes[id] || []
     existing.push filepath
 
-    fileHashes[hash] = existing</pre></div></div>
+    fileHashes[id] = existing</pre></div></div>
             
         </li>
         
         
-        <li id="section-15">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>File already exists?</p>
 
@@ -326,11 +401,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-16">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Delete duplicates?</p>
 
@@ -350,49 +425,51 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-17">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Verify and get hash for the specified file.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">scanFile</span> = <span class="hljs-params">(filepath, callback)</span> -&gt;</span>
-    <span class="hljs-keyword">if</span> options.fast
-        readBufferSize = <span class="hljs-number">2000000</span>
+    <span class="hljs-keyword">if</span> options.crazyfast
+        readBufferSize = <span class="hljs-number">10000</span>
     <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> options.superfast
-        readBufferSize = <span class="hljs-number">20000</span>
+        readBufferSize = <span class="hljs-number">500000</span>
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> options.fast
+        readBufferSize = <span class="hljs-number">5000000</span>
     <span class="hljs-keyword">else</span>
         readBufferSize = <span class="hljs-literal">false</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-18">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>Get MD5 hash from file.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>    getFileHash filepath, readBufferSize, <span class="hljs-function"><span class="hljs-params">(hash)</span> -&gt;</span>
-        saveHash hash, filepath
+        saveHash hash, filepath <span class="hljs-keyword">if</span> hash? <span class="hljs-keyword">and</span> hash <span class="hljs-keyword">isnt</span> <span class="hljs-string">""</span>
         callback()</pre></div></div>
             
         </li>
         
         
-        <li id="section-19">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>Scan a folder to match duplicates.</p>
 
@@ -405,11 +482,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-20">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Helper to scan folder contents (directories and files).</p>
 
@@ -443,11 +520,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-21">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>Finished!</p>
 
@@ -464,11 +541,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-22">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>Save output to dedup.log?</p>
 
@@ -490,11 +567,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-23">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>Bye!</p>
 
@@ -505,11 +582,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-24">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>Run it!</p>
 
@@ -525,11 +602,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-25">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>First we get the parameters. If –help, it will end here.</p>
 
@@ -542,16 +619,18 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
 
     <span class="hljs-keyword">if</span> options.verbose
         <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Start time: <span class="hljs-subst">#{startTime}</span>"</span>
-        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Options: <span class="hljs-subst">#{JSON.stringify(options, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>)}</span>"</span></pre></div></div>
+        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Options: <span class="hljs-subst">#{JSON.stringify(options, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>)}</span>"</span>
+
+    folderTasks = []</pre></div></div>
             
         </li>
         
         
-        <li id="section-26">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>Iterate and scan search folders.</p>
 
@@ -563,11 +642,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-27">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <p>Run run run!</p>
 
@@ -578,11 +657,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-28">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <h2 id="program-called-starts-here-">Program called, starts here!</h2>
 
@@ -591,11 +670,11 @@ fileQueue.drain = <span class="hljs-function">-&gt;</span> finished()</pre></div
         </li>
         
         
-        <li id="section-29">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               
             </div>
