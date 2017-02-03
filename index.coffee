@@ -55,6 +55,17 @@ showHelp = ->
     console.log "Please note that priority runs top to bottom. So superfast has preference"
     console.log "over fast, and sha1 has preference over md5, for example."
     console.log ""
+    console.log "Examples:"
+    console.log ""
+    console.log "Get duplicates on home folder, check first 500KB only, match filenames"
+    console.log "  $ dedup.js -sf -fn /home/user"
+    console.log ""
+    console.log "Delete duplicates on database folder, using md5"
+    console.log "  $ dedup.js -d -md5 /database"
+    console.log ""
+    console.log "Here we pass fast, crazyfast and superfast - crazyfast has preference"
+    console.log "  $ dedup.js -f -cf -sf /somefolder"
+    console.log ""
 
 # Get parameters from command line.
 getParams = ->
