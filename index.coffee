@@ -1,6 +1,6 @@
 # Required dependencies.
 async = require "async"
-cryptoAsync = require "crypto-async"
+crypto = require "crypto"
 fs = require "fs"
 path = require "path"
 
@@ -28,8 +28,9 @@ options = {
     superfast: false
     crazyfast: false
     filename: false
+    reverse: false
     output: false
-    algorithm: "SHA1"
+    algorithm: "sha1"
 }
 
 # Set start time (Unix timestamp).
@@ -48,6 +49,7 @@ showHelp = ->
     console.log "  -fn,      --filename    only consider duplicate files with same filename"
     console.log "  -md5,     --md5         MD5 instead of SHA1 (might be slightly faster on legacy systems)"
     console.log "  -sha512,  --sha512      SHA512 instead of SHA1 (much safer, potentially slower on 32bit)"
+    console.log "  -r,       --reverse     reverse subfolders / files order (alphabetical order descending)"
     console.log "  -o,       --output      save list of duplicate files to dedup.log"
     console.log "  -h,       --help        help me!"
     console.log ""
@@ -89,9 +91,11 @@ getParams = ->
             when "-fn", "--filename"
                 options.filename = true
             when "-md5", "--md5"
-                options.algorithm = "MD5"
+                options.algorithm = "md5"
             when "-sha512", "--sha512"
-                options.algorithm = "SHA512"
+                options.algorithm = "sha512"
+            when "-r", "--reverse"
+                options.reverse = true
             when "-o", "--output"
                 options.output = true
             when "-h", "--help"
@@ -105,33 +109,27 @@ getParams = ->
         console.log "No folders were passed. Abort!"
         process.exit 0
 
-# Proccess file and generate its MD5 hash.
+# Proccess file and generate its checksum.
 getFileHash = (filepath, maxBytes, callback) ->
-    filedata = []
+    hash = crypto.createHash options.algorithm
     readStream = fs.createReadStream filepath
     bytesRead = 0
 
-    # Finished reading file, close the stream and generate the hash.
+    # Finished reading file, close the stream and get digest.
     finish = ->
+        result = null
+
         try
             readStream.close()
-
-            # Concatenate read data and generate hash.
-            buf = Buffer.concat filedata
-            hash = cryptoAsync.hash options.algorithm, buf, (err, hash) ->
-                if err?
-                    console.error "Error generating hash for #{filepath}: #{err}"
-                    callback null
-                else
-                    hex = hash.toString "hex"
-                    callback hex
+            result = hash.digest "hex"
         catch ex
-            console.error "Error preparing hash for #{filepath}: #{ex}"
-            callback null
+            console.error "Error closing stream / hash for #{filepath}: #{ex}"
+
+        callback result
 
     # Something went wrong? Close stream and return with empty callback.
     reject = (err) ->
-        console.log "Error getting MD5 hash for #{filepath}: #{err}"
+        console.log "Error getting #{options.algorithm} hash for #{filepath}: #{err}"
 
         try
             readStream.close()
@@ -142,12 +140,12 @@ getFileHash = (filepath, maxBytes, callback) ->
 
     # Append file data to the hash.
     readStream.on "data", (data) ->
-        filedata.push data
-
         if maxBytes and (bytesRead + data.length) > maxBytes
+            hash.update data.slice 0, maxBytes - bytesRead
             finish()
         else
             bytesRead += data.length
+            hash.update data
 
     readStream.on "end", finish
     readStream.on "error", reject
@@ -230,7 +228,17 @@ scanFolder = (folder, callback) ->
         if options.verbose
             console.log "#{folder} has #{contents.length} itens"
 
-        scanner c for c in contents
+        if options.reverse
+            i = contents.length - 1
+            while i >= 0
+                scanner contents[i]
+                i--
+        else
+            i = 0
+            while i < contents.length
+                scanner contents[i]
+                i++
+
         callback null if callback?
     catch ex
         console.error "Error reading #{folder}: #{ex}"
