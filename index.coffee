@@ -29,7 +29,7 @@ options = {
     crazyfast: false
     filename: false
     reverse: false
-    output: false
+    log: false
     algorithm: "sha1"
 }
 
@@ -49,8 +49,8 @@ showHelp = ->
     console.log "  -fn,      --filename    only consider duplicate files with same filename"
     console.log "  -md5,     --md5         MD5 instead of SHA1 (might be slightly faster on legacy systems)"
     console.log "  -sha512,  --sha512      SHA512 instead of SHA1 (much safer, potentially slower on 32bit)"
-    console.log "  -r,       --reverse     reverse subfolders / files order (alphabetical order descending)"
-    console.log "  -o,       --output      save list of duplicate files to dedup.log"
+    console.log "  -rev,     --reverse     reverse subfolders / files order (alphabetical order descending)"
+    console.log "  -l,       --log      save list of duplicate files to dedup.log"
     console.log "  -h,       --help        help me!"
     console.log ""
     console.log "Please note that priority runs top to bottom. So superfast has preference"
@@ -94,10 +94,10 @@ getParams = ->
                 options.algorithm = "md5"
             when "-sha512", "--sha512"
                 options.algorithm = "sha512"
-            when "-r", "--reverse"
+            when "-rev", "--reverse"
                 options.reverse = true
-            when "-o", "--output"
-                options.output = true
+            when "-l", "--log"
+                options.log = true
             when "-h", "--help"
                 showHelp()
                 process.exit 0
@@ -152,10 +152,10 @@ getFileHash = (filepath, maxBytes, callback) ->
 
 # Check duplicates based on the fileHashes collection.
 saveHash = (hash, filepath) ->
-    if options.filename
-        id = "#{hash}-#{path.basename(filepath)}"
-    else
-        id = hash
+    id = hash
+
+    # Consider filename for duplicates?
+    id += "-#{path.basename(filepath)}" if options.filename
 
     dup = filepath
     existing = fileHashes[id] || []
@@ -254,7 +254,7 @@ finished = (err, result) ->
     console.log "#{duplicates.length} duplicates"
 
     # Save output to dedup.log?
-    if options.output
+    if options.log
         if options.removeDuplicates
             logContents = "Duplicate files found and deleted (an * before indicates error):\n\n"
         else
