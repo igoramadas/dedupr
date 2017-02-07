@@ -43,14 +43,14 @@ showHelp = ->
     console.log ""
     console.log "  -v,       --verbose     log things as they happen"
     console.log "  -d,       --delete      delete duplicates when found (use with care!!!)"
-    console.log "  -f,       --fast        hash first 5MB only for better performance (unsafe-ish)"
-    console.log "  -sf,      --superfast   hash first 500KB only for max performance (unsafer)"
-    console.log "  -cf,      --crazyfast   hash first 10KB only for max performance (very unsafe)"
+    console.log "  -f1       --fast        hash first 5MB only for better performance (unsafe-ish)"
+    console.log "  -f2,      --superfast   hash first 500KB only for max performance (unsafe)"
+    console.log "  -f3,      --crazyfast   hash first 10KB only for max performance (very unsafe)"
     console.log "  -fn,      --filename    only consider duplicate files with same filename"
     console.log "  -md5,     --md5         MD5 instead of SHA1 (might be slightly faster on legacy systems)"
     console.log "  -sha512,  --sha512      SHA512 instead of SHA1 (much safer, potentially slower on 32bit)"
-    console.log "  -rev,     --reverse     reverse subfolders / files order (alphabetical order descending)"
-    console.log "  -l,       --log      save list of duplicate files to dedup.log"
+    console.log "  -r,       --reverse     reverse subfolders / files order (alphabetical order descending)"
+    console.log "  -l,       --log         save list of duplicate files to dedup.log"
     console.log "  -h,       --help        help me!"
     console.log ""
     console.log "Please note that priority runs top to bottom. So superfast has preference"
@@ -62,8 +62,8 @@ showHelp = ->
     console.log ""
     console.log "Examples:"
     console.log ""
-    console.log "Get duplicates on home folder, check first 500KB only, match filenames"
-    console.log "  $ dedup.js -sf -fn /home/user"
+    console.log "Get duplicates on home folder, check first 5MB only, match filenames"
+    console.log "  $ dedup.js -f1 -fn /home/user"
     console.log ""
     console.log "Delete duplicates on database folder, using md5"
     console.log "  $ dedup.js -d -md5 /database"
@@ -82,11 +82,11 @@ getParams = ->
                 options.verbose = true
             when "-d", "--delete"
                 options.removeDuplicates = true
-            when "-f", "--fast"
+            when "-f1", "--fast"
                 options.fast = true
-            when "-sf", "--superfast"
+            when "-f2", "--superfast"
                 options.superfast = true
-            when "-cf", "--crazyfast"
+            when "-f3", "--crazyfast"
                 options.crazyfast = true
             when "-fn", "--filename"
                 options.filename = true
@@ -94,7 +94,7 @@ getParams = ->
                 options.algorithm = "md5"
             when "-sha512", "--sha512"
                 options.algorithm = "sha512"
-            when "-rev", "--reverse"
+            when "-r", "--reverse"
                 options.reverse = true
             when "-l", "--log"
                 options.log = true
