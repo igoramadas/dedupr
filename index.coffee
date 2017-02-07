@@ -106,8 +106,13 @@ getParams = ->
 
     # Exit if no folders were passed.
     if folders.length < 1
-        console.log "No folders were passed. Abort!"
-        process.exit 0
+        console.log "Abort! No folders were passed."
+        return process.exit 0
+
+    for f in folders
+        if f.substring(0, 1) is "-"
+            console.log "Abort! Invalid option: #{f}"
+            return process.exit 0
 
 # Proccess file and generate its checksum.
 getFileHash = (filepath, maxBytes, callback) ->
