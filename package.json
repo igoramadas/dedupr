@@ -1,7 +1,7 @@
 {
     "name": "dedup.js",
-    "version": "0.9.3",
-    "description": "Node.js utility to remove duplicates from the specified folders.",
+    "version": "1.0.0",
+    "description": "Node.js utility to remove duplicates from folders.",
     "homepage": "http://github.com/igoramadas/dedup.js",
     "author": "Igor Ramadas <igor@devv.com>",
     "license": "Apache-2.0",

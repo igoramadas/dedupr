@@ -8,7 +8,7 @@ Tested on OS X, Linux Ubuntu x86 and Windows 10 x64.
 
 More info at https://github.com/igoramadas/dedup.js
 
-### Installation:
+### How to install
 
     $ sudo npm install -g dedup.js
 

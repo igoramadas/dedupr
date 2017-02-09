@@ -47,8 +47,8 @@ showHelp = ->
     console.log "  -f2,      --superfast   hash first 500KB only for max performance (unsafe)"
     console.log "  -f3,      --crazyfast   hash first 10KB only for max performance (very unsafe)"
     console.log "  -fn,      --filename    only consider duplicate files with same filename"
-    console.log "  -md5,     --md5         MD5 instead of SHA1 (might be slightly faster on legacy systems)"
-    console.log "  -sha512,  --sha512      SHA512 instead of SHA1 (much safer, potentially slower on 32bit)"
+    console.log "  -md5,     --md5         MD5 instead of SHA1 (slightly faster on legacy / old systems)"
+    console.log "  -sha512,  --sha512      SHA512 instead of SHA1 (safest, potentially slower on 32bit)"
     console.log "  -r,       --reverse     reverse subfolders / files order (alphabetical order descending)"
     console.log "  -l,       --log         save list of duplicate files to dedup.log"
     console.log "  -h,       --help        help me!"
@@ -69,7 +69,7 @@ showHelp = ->
     console.log "  $ dedup.js -d -md5 /database"
     console.log ""
     console.log "Here we pass fast, crazyfast and superfast - crazyfast has preference"
-    console.log "  $ dedup.js -f -cf -sf /somefolder"
+    console.log "  $ dedup.js -f1 -f3 -f2 /somefolder"
     console.log ""
 
 # Get parameters from command line.
@@ -111,7 +111,7 @@ getParams = ->
 
     for f in folders
         if f.substring(0, 1) is "-"
-            console.log "Abort! Invalid option: #{f}"
+            console.log "Abort! Invalid option: #{f}. Use --help to get a list of available options."
             return process.exit 0
 
 # Proccess file and generate its checksum.
