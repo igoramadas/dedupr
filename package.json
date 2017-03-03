@@ -1,6 +1,6 @@
 {
     "name": "dedup.js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Node.js utility to remove duplicates from folders.",
     "homepage": "http://github.com/igoramadas/dedup.js",
     "author": "Igor Ramadas <igor@devv.com>",
@@ -20,7 +20,7 @@
         "docs": "make docs"
     },
     "dependencies": {
-        "coffee-script": ">= 1.12.3",
+        "coffee-script": ">= 1.12.4",
         "async": "2.1.x"
     },
     "devDependencies": {

@@ -27,20 +27,6 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-comment">#!/usr/bin/env node</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-2">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-2">&#182;</a>
-              </div>
               <p>Required dependencies.</p>
 
             </div>
@@ -53,11 +39,11 @@ path = <span class="hljs-built_in">require</span> <span class="hljs-string">"pat
         </li>
         
         
-        <li id="section-3">
+        <li id="section-2">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-3">&#182;</a>
+                <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>Collection of file hashes (with or without filenames, depending on –filename option).</p>
 
@@ -68,11 +54,11 @@ path = <span class="hljs-built_in">require</span> <span class="hljs-string">"pat
         </li>
         
         
-        <li id="section-4">
+        <li id="section-3">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p>List of duplicates.</p>
 
@@ -83,11 +69,11 @@ path = <span class="hljs-built_in">require</span> <span class="hljs-string">"pat
         </li>
         
         
-        <li id="section-5">
+        <li id="section-4">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p>List of folders to be scanned.</p>
 
@@ -98,11 +84,11 @@ path = <span class="hljs-built_in">require</span> <span class="hljs-string">"pat
         </li>
         
         
-        <li id="section-6">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>Create file processor queue (scan the file and get its hash based on options).</p>
 
@@ -114,11 +100,11 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         </li>
         
         
-        <li id="section-7">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>File processor queue will drain once we have processed all files.</p>
 
@@ -129,11 +115,11 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>Default options, will list duplicates only, using SHA1.</p>
 
@@ -146,18 +132,19 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
     superfast: <span class="hljs-literal">false</span>
     crazyfast: <span class="hljs-literal">false</span>
     filename: <span class="hljs-literal">false</span>
-    output: <span class="hljs-literal">false</span>
+    reverse: <span class="hljs-literal">false</span>
+    log: <span class="hljs-literal">false</span>
     algorithm: <span class="hljs-string">"sha1"</span>
 }</pre></div></div>
             
         </li>
         
         
-        <li id="section-9">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Set start time (Unix timestamp).</p>
 
@@ -168,11 +155,11 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         </li>
         
         
-        <li id="section-10">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Show help on command line (dedup.js –help).</p>
 
@@ -182,39 +169,45 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">"dedup.js &lt;options&gt; &lt;folders&gt;"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -v,    --verbose     log things as they happen"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -d,    --delete      delete duplicates when found (use with care!!!)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -f,    --fast        hash first 5MB only for better performance (unsafe-ish)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -sf,   --superfast   hash first 500KB only for max performance (unsafer)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -cf,   --crazyfast   hash first 10KB only for max performance (very unsafe)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -fn,   --filename    only consider duplicate files with same filename"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -md5,  --md5         MD5 instead of SHA1 (usually faster, might have collisions)"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -o,    --output      save list of duplicate files to dedup.log"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -h,    --help        help me!"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -v,       --verbose     log things as they happen"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -d,       --delete      delete duplicates when found (use with care!)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -f1       --fast        hash first 5MB only for better performance (unsafe-ish)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -f2,      --superfast   hash first 500KB only for max performance (unsafe)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -f3,      --crazyfast   hash first 10KB only for max performance (very unsafe)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -fn,      --filename    only consider duplicate files with the same filename"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -md5,     --md5         MD5 instead of SHA1 (slightly faster on legacy / old systems)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -sha512,  --sha512      SHA512 instead of SHA1 (safest, potentially slower on 32bit)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -r,       --reverse     reverse subfolders / files order (alphabetical order descending)"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -l,       --log         save list of duplicate files to dedup.log"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  -h,       --help        help me (this screen)"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Please note that priority runs top to bottom. So superfast has preference"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"over fast, and sha1 has preference over md5, for example."</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"over fast, and sha512 has preference over md5, for example."</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"When deleting duplicates, the first occurrence of a file is the one preserved."</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"So for example when passing dir1, dir2 and dir3, all having the exact same"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"structure, duplicate files will be deleted from dir2 and dir3."</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Examples:"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Get duplicates on home folder, check first 500KB only, match filenames"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -sf -fn /home/user"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Get duplicates on home folder, check first 5MB only, match filenames"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -f1 -fn /home/user"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Delete duplicates on database folder, using md5"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -d -md5 /database"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Here we pass fast, crazyfast and superfast - crazyfast has preference"</span>
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -f -cf -sf /somefolder"</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"  $ dedup.js -f1 -f3 -f2 /somefolder"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-11">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>Get parameters from command line.</p>
 
@@ -229,23 +222,49 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
                 options.verbose = <span class="hljs-literal">true</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-d"</span>, <span class="hljs-string">"--delete"</span>
                 options.removeDuplicates = <span class="hljs-literal">true</span>
-            <span class="hljs-keyword">when</span> <span class="hljs-string">"-f"</span>, <span class="hljs-string">"--fast"</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-f1"</span>, <span class="hljs-string">"--fast"</span>
                 options.fast = <span class="hljs-literal">true</span>
-            <span class="hljs-keyword">when</span> <span class="hljs-string">"-sf"</span>, <span class="hljs-string">"--superfast"</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-f2"</span>, <span class="hljs-string">"--superfast"</span>
                 options.superfast = <span class="hljs-literal">true</span>
-            <span class="hljs-keyword">when</span> <span class="hljs-string">"-cf"</span>, <span class="hljs-string">"--crazyfast"</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-f3"</span>, <span class="hljs-string">"--crazyfast"</span>
                 options.crazyfast = <span class="hljs-literal">true</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-fn"</span>, <span class="hljs-string">"--filename"</span>
                 options.filename = <span class="hljs-literal">true</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-md5"</span>, <span class="hljs-string">"--md5"</span>
                 options.algorithm = <span class="hljs-string">"md5"</span>
-            <span class="hljs-keyword">when</span> <span class="hljs-string">"-o"</span>, <span class="hljs-string">"--output"</span>
-                options.output = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-sha512"</span>, <span class="hljs-string">"--sha512"</span>
+                options.algorithm = <span class="hljs-string">"sha512"</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-r"</span>, <span class="hljs-string">"--reverse"</span>
+                options.reverse = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">when</span> <span class="hljs-string">"-l"</span>, <span class="hljs-string">"--log"</span>
+                options.log = <span class="hljs-literal">true</span>
             <span class="hljs-keyword">when</span> <span class="hljs-string">"-h"</span>, <span class="hljs-string">"--help"</span>
                 showHelp()
                 process.exit <span class="hljs-number">0</span>
             <span class="hljs-keyword">else</span>
                 folders.push p</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Exit if no folders were passed.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> folders.length &lt; <span class="hljs-number">1</span>
+        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Abort! No folders were passed."</span>
+        <span class="hljs-keyword">return</span> process.exit <span class="hljs-number">0</span>
+
+    <span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> folders
+        <span class="hljs-keyword">if</span> f.substring(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) <span class="hljs-keyword">is</span> <span class="hljs-string">"-"</span>
+            <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Abort! Invalid option: <span class="hljs-subst">#{f}</span>. Use --help to get a list of available options."</span>
+            <span class="hljs-keyword">return</span> process.exit <span class="hljs-number">0</span></pre></div></div>
             
         </li>
         
@@ -256,24 +275,7 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
-              <p>Exit if no folders were passed.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> folders.length &lt; <span class="hljs-number">1</span>
-        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"No folders were passed. Abort!"</span>
-        process.exit <span class="hljs-number">0</span></pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-13">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
-              </div>
-              <p>Proccess file and generate its MD5 hash.</p>
+              <p>Proccess file and generate its checksum.</p>
 
             </div>
             
@@ -285,13 +287,13 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
-              <p>Helper to close the read stream.</p>
+              <p>Finished reading file, close the stream and get digest.</p>
 
             </div>
             
@@ -302,25 +304,25 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
             readStream.close()
             result = hash.digest <span class="hljs-string">"hex"</span>
         <span class="hljs-keyword">catch</span> ex
-            <span class="hljs-built_in">console</span>.error <span class="hljs-string">"Error closing stream for <span class="hljs-subst">#{filepath}</span>: <span class="hljs-subst">#{ex}</span>"</span>
+            <span class="hljs-built_in">console</span>.error <span class="hljs-string">"Error closing stream / hash for <span class="hljs-subst">#{filepath}</span>: <span class="hljs-subst">#{ex}</span>"</span>
 
         callback result</pre></div></div>
             
         </li>
         
         
-        <li id="section-15">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Something went wrong? Close stream and return with empty callback.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function">    <span class="hljs-title">reject</span> = <span class="hljs-params">(err)</span> -&gt;</span>
-        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Error getting MD5 hash for <span class="hljs-subst">#{filepath}</span>: <span class="hljs-subst">#{err}</span>"</span>
+        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Error getting <span class="hljs-subst">#{options.algorithm}</span> hash for <span class="hljs-subst">#{filepath}</span>: <span class="hljs-subst">#{err}</span>"</span>
 
         <span class="hljs-keyword">try</span>
             readStream.close()
@@ -332,11 +334,11 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Append file data to the hash.</p>
 
@@ -356,21 +358,33 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Check duplicates based on the fileHashes collection.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-title">saveHash</span> = <span class="hljs-params">(hash, filepath)</span> -&gt;</span>
-    <span class="hljs-keyword">if</span> options.filename
-        id = <span class="hljs-string">"<span class="hljs-subst">#{hash}</span>-<span class="hljs-subst">#{path.basename(filepath)}</span>"</span>
-    <span class="hljs-keyword">else</span>
-        id = hash
+    id = hash</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Consider filename for duplicates?</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    id += <span class="hljs-string">"-<span class="hljs-subst">#{path.basename(filepath)}</span>"</span> <span class="hljs-keyword">if</span> options.filename
 
     dup = filepath
     existing = fileHashes[id] || []
@@ -459,7 +473,11 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
             </div>
             
             <div class="content"><div class='highlight'><pre>    getFileHash filepath, readBufferSize, <span class="hljs-function"><span class="hljs-params">(hash)</span> -&gt;</span>
-        saveHash hash, filepath <span class="hljs-keyword">if</span> hash? <span class="hljs-keyword">and</span> hash <span class="hljs-keyword">isnt</span> <span class="hljs-string">""</span>
+        <span class="hljs-keyword">if</span> hash? <span class="hljs-keyword">and</span> hash <span class="hljs-keyword">isnt</span> <span class="hljs-string">""</span>
+            saveHash hash, filepath
+        <span class="hljs-keyword">else</span>
+            <span class="hljs-built_in">console</span>.error <span class="hljs-string">"Got an empty hash for: <span class="hljs-subst">#{filepath}</span>"</span>
+
         callback()</pre></div></div>
             
         </li>
@@ -511,7 +529,17 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
         <span class="hljs-keyword">if</span> options.verbose
             <span class="hljs-built_in">console</span>.log <span class="hljs-string">"<span class="hljs-subst">#{folder}</span> has <span class="hljs-subst">#{contents.length}</span> itens"</span>
 
-        scanner c <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> contents
+        <span class="hljs-keyword">if</span> options.reverse
+            i = contents.length - <span class="hljs-number">1</span>
+            <span class="hljs-keyword">while</span> i &gt;= <span class="hljs-number">0</span>
+                scanner contents[i]
+                i--
+        <span class="hljs-keyword">else</span>
+            i = <span class="hljs-number">0</span>
+            <span class="hljs-keyword">while</span> i &lt; contents.length
+                scanner contents[i]
+                i++
+
         callback <span class="hljs-literal">null</span> <span class="hljs-keyword">if</span> callback?
     <span class="hljs-keyword">catch</span> ex
         <span class="hljs-built_in">console</span>.error <span class="hljs-string">"Error reading <span class="hljs-subst">#{folder}</span>: <span class="hljs-subst">#{ex}</span>"</span>
@@ -551,9 +579,9 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> options.output
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> options.log
         <span class="hljs-keyword">if</span> options.removeDuplicates
-            logContents = <span class="hljs-string">"Duplicate files found (and deleted):\n\n"</span>
+            logContents = <span class="hljs-string">"Duplicate files found and deleted (an * before indicates error):\n\n"</span>
         <span class="hljs-keyword">else</span>
             logContents = <span class="hljs-string">"Duplicate files found:\n\n"</span>
 
@@ -613,15 +641,11 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
             </div>
             
             <div class="content"><div class='highlight'><pre>    getParams()
-
-    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Will search for duplicates on <span class="hljs-subst">#{folders.length}</span> locations."</span>
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Options: <span class="hljs-subst">#{JSON.stringify(options, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>)}</span>"</span>
     <span class="hljs-built_in">console</span>.log <span class="hljs-string">""</span>
 
-    <span class="hljs-keyword">if</span> options.verbose
-        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Start time: <span class="hljs-subst">#{startTime}</span>"</span>
-        <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Options: <span class="hljs-subst">#{JSON.stringify(options, <span class="hljs-literal">null</span>, <span class="hljs-number">0</span>)}</span>"</span>
-
-    folderTasks = []</pre></div></div>
+    folderTasks = []
+    <span class="hljs-built_in">console</span>.log <span class="hljs-string">"Will search for duplicates on:"</span></pre></div></div>
             
         </li>
         
@@ -637,6 +661,7 @@ fileQueue = async.queue queueProcessor, <span class="hljs-number">4</span></pre>
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">for</span> folder <span class="hljs-keyword">in</span> folders
+        <span class="hljs-built_in">console</span>.log folder
         folderTasks.push (callback) -&gt; scanFolder folder, callback</pre></div></div>
             
         </li>
