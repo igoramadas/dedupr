@@ -4,6 +4,9 @@ crypto = require "crypto"
 fs = require "fs"
 path = require "path"
 
+# Get current executable folder.
+executableFolder = path.dirname(require.main.filename) + "/"
+
 # Collection of file hashes (with or without filenames, depending on --filename option).
 fileHashes = {}
 
@@ -23,6 +26,7 @@ fileQueue.drain = -> finished()
 # Default options, will list duplicates only, using SHA1.
 options = {
     verbose: false
+    archiveDuplicates: false
     removeDuplicates: false
     fast: false
     superfast: false
@@ -36,22 +40,23 @@ options = {
 # Set start time (Unix timestamp).
 startTime = Date.now()
 
-# Show help on command line (dedup.js --help).
+# Show help on command line (dedup.js -help).
 showHelp = ->
     console.log ""
     console.log "dedup.js <options> <folders>"
     console.log ""
-    console.log "  -v,       --verbose     log things as they happen"
-    console.log "  -d,       --delete      delete duplicates when found (use with care!)"
-    console.log "  -f1       --fast        hash first 5MB only for better performance (unsafe-ish)"
-    console.log "  -f2,      --superfast   hash first 500KB only for max performance (unsafe)"
-    console.log "  -f3,      --crazyfast   hash first 10KB only for max performance (very unsafe)"
-    console.log "  -fn,      --filename    only consider duplicate files with the same filename"
-    console.log "  -md5,     --md5         MD5 instead of SHA1 (slightly faster on legacy / old systems)"
-    console.log "  -sha512,  --sha512      SHA512 instead of SHA1 (safest, potentially slower on 32bit)"
-    console.log "  -r,       --reverse     reverse subfolders / files order (alphabetical order descending)"
-    console.log "  -l,       --log         save list of duplicate files to dedup.log"
-    console.log "  -h,       --help        help me (this screen)"
+    console.log "  -h        -help        help me (this screen)"
+    console.log "  -v        -verbose     log things as they happen"
+    console.log "  -a        -archive     move duplicates to the dedup.js.archive folder"
+    console.log "  -d        -delete      delete duplicates when found (use with care!)"
+    console.log "  -l        -log         save list of duplicate files to dedup.log"
+    console.log "  -f1       -fast        hash first 5MB only for better performance (unsafe-ish)"
+    console.log "  -f2       -superfast   hash first 500KB only for max performance (unsafe)"
+    console.log "  -f3       -crazyfast   hash first 10KB only for max performance (very unsafe)"
+    console.log "  -fn       -filename    only consider duplicate files with the same filename"
+    console.log "  -r        -reverse     reverse subfolders / files order (alphabetical order descending)"
+    console.log "  -md5                   MD5 instead of SHA1 (slightly faster on legacy / old systems)"
+    console.log "  -sha512                SHA512 instead of SHA1 (safest, potentially slower on 32bit)"
     console.log ""
     console.log "Please note that priority runs top to bottom. So superfast has preference"
     console.log "over fast, and sha512 has preference over md5, for example."
@@ -78,29 +83,31 @@ getParams = ->
 
     for p in params
         switch p
-            when "-v", "--verbose"
-                options.verbose = true
-            when "-d", "--delete"
-                options.removeDuplicates = true
-            when "-f1", "--fast"
-                options.fast = true
-            when "-f2", "--superfast"
-                options.superfast = true
-            when "-f3", "--crazyfast"
-                options.crazyfast = true
-            when "-fn", "--filename"
-                options.filename = true
-            when "-md5", "--md5"
-                options.algorithm = "md5"
-            when "-sha512", "--sha512"
-                options.algorithm = "sha512"
-            when "-r", "--reverse"
-                options.reverse = true
-            when "-l", "--log"
-                options.log = true
-            when "-h", "--help"
+            when "-h", "-help"
                 showHelp()
                 process.exit 0
+            when "-v", "-verbose"
+                options.verbose = true
+            when "-a", "-archive"
+                options.archiveDuplicates = true
+            when "-d", "-delete"
+                options.removeDuplicates = true
+            when "-l", "-log"
+                options.log = true
+            when "-f1", "-fast"
+                options.fast = true
+            when "-f2", "-superfast"
+                options.superfast = true
+            when "-f3", "-crazyfast"
+                options.crazyfast = true
+            when "-fn", "-filename"
+                options.filename = true
+            when "-r", "-reverse"
+                options.reverse = true
+            when "-md5"
+                options.algorithm = "md5"
+            when "-sha512"
+                options.algorithm = "sha512"
             else
                 folders.push p
 
@@ -113,6 +120,33 @@ getParams = ->
         if f.substring(0, 1) is "-"
             console.log "Abort! Invalid option: #{f}. Use --help to get a list of available options."
             return process.exit 0
+
+# Make sure the "target" directory exists by recursively iterating through directories.
+mkdirRecursive = (target) =>
+    return if fs.existsSync path.resolve(target)
+
+    callback = (p, made) ->
+        made = null if not made
+
+        p = path.resolve p
+
+        try
+            fs.mkdirSync p
+        catch ex
+            if ex.code is "ENOENT"
+                made = callback path.dirname(p), made
+                callback p, made
+            else
+                try
+                    stat = fs.statSync p
+                catch ex1
+                    throw ex
+                if not stat.isDirectory()
+                    throw ex
+
+        return made
+
+    return callback target
 
 # Proccess file and generate its checksum.
 getFileHash = (filepath, maxBytes, callback) ->
@@ -186,6 +220,20 @@ saveHash = (hash, filepath) ->
                     dup += " | deleted"
                     console.log "Deleted #{filepath}" if options.verbose
 
+        # Move duplicates to dedup.js.archive folder?
+        else if options.archiveDuplicates
+            newPath = executableFolder + "dedup.js.archive" + filepath
+
+            mkdirRecursive path.dirname(newPath)
+
+            fs.rename filepath, newPath, (err) ->
+                if err?
+                    dup += " | error"
+                    console.log "Could not archive #{filepath}: #{err}"
+                else
+                    dup += " | archived"
+                    console.log "Archived #{filepath}" if options.verbose
+
         duplicates.push dup
 
 # Verify and get hash for the specified file.
@@ -227,6 +275,9 @@ scanFolder = (folder, callback) ->
         catch ex
             console.error "Error reading #{filepath}: #{ex}"
 
+    # Make sure we have the correct folder path.
+    folder = executableFolder + folder if not path.isAbsolute folder
+
     try
         contents = fs.readdirSync folder
 
@@ -262,6 +313,8 @@ finished = (err, result) ->
     if options.log
         if options.removeDuplicates
             logContents = "Duplicate files found and deleted (an * before indicates error):\n\n"
+        else if options.archiveDuplicates
+            logContents = "Duplicate files found and archived (an * before indicates error):\n\n"
         else
             logContents = "Duplicate files found:\n\n"
 
@@ -294,7 +347,9 @@ run = ->
     # Iterate and scan search folders.
     for folder in folders
         console.log folder
-        folderTasks.push (callback) -> scanFolder folder, callback
+        do (folder) -> folderTasks.push (callback) -> scanFolder folder, callback
+
+    console.log ""
 
     # Run run run!
     async.parallelLimit folderTasks, 2

@@ -14,8 +14,8 @@ More info at https://github.com/igoramadas/dedup.js
 
 ### Usage
 
-    $ dedup.js --help
+    $ dedup.js -help
 
 #### Example
 
-    $ dedup.js [options] directory1 directory2 directories...
+    $ dedup.js [options] directory1 directory2 other-directories...
