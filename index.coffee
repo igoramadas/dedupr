@@ -50,7 +50,8 @@ showHelp = ->
     console.log "  -a        -archive     move duplicates to the dedup.js.archive folder"
     console.log "  -d        -delete      delete duplicates when found (use with care!)"
     console.log "  -l        -log         save list of duplicate files to dedup.log"
-    console.log "  -f1       -fast        hash first 5MB only for better performance (unsafe-ish)"
+    console.log "  -f0       -fast        hash first 20MB only for better performance (safe)"
+    console.log "  -f1       -faster      hash first 5MB only for better performance (unsafe-ish)"
     console.log "  -f2       -superfast   hash first 500KB only for max performance (unsafe)"
     console.log "  -f3       -crazyfast   hash first 10KB only for max performance (very unsafe)"
     console.log "  -fn       -filename    only consider duplicate files with the same filename"
@@ -94,8 +95,10 @@ getParams = ->
                 options.removeDuplicates = true
             when "-l", "-log"
                 options.log = true
-            when "-f1", "-fast"
+            when "-f0", "-fast"
                 options.fast = true
+            when "-f1", "-faster"
+                options.faster = true
             when "-f2", "-superfast"
                 options.superfast = true
             when "-f3", "-crazyfast"
@@ -242,8 +245,10 @@ scanFile = (filepath, callback) ->
         readBufferSize = 10000
     else if options.superfast
         readBufferSize = 500000
-    else if options.fast
+    else if options.faster
         readBufferSize = 5000000
+    else if options.fast
+        readBufferSize = 20000000
     else
         readBufferSize = false
 
