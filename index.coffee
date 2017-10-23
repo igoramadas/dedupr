@@ -82,11 +82,16 @@ showHelp = ->
 getParams = ->
     params = Array::slice.call process.argv, 2
 
+    # No parameters? Show help.
+    if params.length is 0
+        showHelp()
+        return process.exit 0
+
     for p in params
         switch p
             when "-h", "-help"
                 showHelp()
-                process.exit 0
+                return process.exit 0
             when "-v", "-verbose"
                 options.verbose = true
             when "-a", "-archive"
