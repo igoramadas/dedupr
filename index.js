@@ -1,2 +1,2 @@
-require("coffee-script/register");
-module.exports = exports = require("./index.coffee");
+require("coffeescript/register")
+module.exports = exports = require("./index.coffee")
