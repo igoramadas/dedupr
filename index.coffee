@@ -74,9 +74,6 @@ showHelp = ->
     console.log "Delete duplicates on database folder, using md5"
     console.log "  $ dedup.js -d -md5 /database"
     console.log ""
-    console.log "Here we pass fast, crazyfast and superfast - crazyfast has preference"
-    console.log "  $ dedup.js -f1 -f3 -f2 /somefolder"
-    console.log ""
 
 # Get parameters from command line.
 getParams = ->
@@ -126,7 +123,7 @@ getParams = ->
 
     for f in folders
         if f.substring(0, 1) is "-"
-            console.log "Abort! Invalid option: #{f}. Use --help to get a list of available options."
+            console.log "Abort! Invalid option: #{f}. Use -help to get a list of available options."
             return process.exit 0
 
 # Make sure the "target" directory exists by recursively iterating through directories.

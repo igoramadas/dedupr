@@ -5,7 +5,7 @@ else
 endif
 
 docs:
-	$(DOCCO) -o docs index.coffee
+	$(DOCCO) -o docs README.MD index.coffee
 clean:
 	rm -rf ./node_modules
 	rm -rf ./logs/*.log

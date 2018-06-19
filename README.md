@@ -1,6 +1,5 @@
 # Dedup.js
 
-
 Quick and smart-ish tool to find and delete duplicate files. Using Node.js / CoffeeScript.
 Supports MD5 and SHA512 to generate checksums.
 
