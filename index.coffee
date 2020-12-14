@@ -34,6 +34,7 @@ options = {
     filename: false
     reverse: false
     log: false
+    subFolders: false
     algorithm: "sha1"
 }
 
@@ -51,13 +52,14 @@ showHelp = ->
     console.log "  -d        -delete      delete duplicates when found (use with care!)"
     console.log "  -l        -log         save list of duplicate files to dedup.log"
     console.log "  -f0       -fast        hash first 20MB only for better performance (safe)"
-    console.log "  -f1       -faster      hash first 5MB only for better performance (unsafe-ish)"
-    console.log "  -f2       -superfast   hash first 500KB only for max performance (unsafe)"
-    console.log "  -f3       -crazyfast   hash first 10KB only for max performance (very unsafe)"
+    console.log "  -f1       -faster      hash first 5MB only for better performance (mostly safe)"
+    console.log "  -f2       -superfast   hash first 500KB only for max performance (safe-ish)"
+    console.log "  -f3       -crazyfast   hash first 10KB only for max performance (unsafe)"
     console.log "  -fn       -filename    only consider duplicate files with the same filename"
     console.log "  -r        -reverse     reverse subfolders / files order (alphabetical order descending)"
     console.log "  -md5                   MD5 instead of SHA1 (slightly faster on legacy / old systems)"
     console.log "  -sha512                SHA512 instead of SHA1 (safest, potentially slower on 32bit)"
+    console.log "  -sub                   use subfolders of the passed path (only works if passing a single folder)"
     console.log ""
     console.log "Please note that priority runs top to bottom. So superfast has preference"
     console.log "over fast, and sha512 has preference over md5, for example."
@@ -86,7 +88,7 @@ getParams = ->
 
     for p in params
         switch p
-            when "-h", "-help"
+            when "-h", "-help", "--help"
                 showHelp()
                 return process.exit 0
             when "-v", "-verbose"
@@ -113,18 +115,36 @@ getParams = ->
                 options.algorithm = "md5"
             when "-sha512"
                 options.algorithm = "sha512"
+            when "-sub"
+                options.subFolders = true
             else
                 folders.push p
 
     # Exit if no folders were passed.
     if folders.length < 1
-        console.log "Abort! No folders were passed."
+        console.error "Abort! No folders were passed."
         return process.exit 0
 
-    for f in folders
-        if f.substring(0, 1) is "-"
-            console.log "Abort! Invalid option: #{f}. Use -help to get a list of available options."
+    # Subfolders option is only allowed for a single folder.
+    if options.subFolders
+        if folders.length > 1
+            console.error "Using the option -sub is only allowed if you pass a single folder"
             return process.exit 0
+        else
+            mainFolder = folders[0]
+            folders = fs.readdirSync(mainFolder)
+            folders = folders.map (f) -> path.join(mainFolder, f)
+            folders = folders.filter (f) -> fs.statSync(f).isDirectory()
+
+            # Sort according to the reverse option.
+            folders.sort()
+            folders.reverse() if options.reverse
+
+    else
+        for f in folders
+            if f.substring(0, 1) is "-"
+                console.error "Abort! Invalid option: #{f}. Use -help to get a list of available options."
+                return process.exit 0
 
 # Make sure the "target" directory exists by recursively iterating through directories.
 mkdirRecursive = (target) =>
@@ -173,7 +193,7 @@ getFileHash = (filepath, maxBytes, callback) ->
 
     # Something went wrong? Close stream and return with empty callback.
     reject = (err) ->
-        console.log "Error getting #{options.algorithm} hash for #{filepath}: #{err}"
+        console.error "Error getting #{options.algorithm} hash for #{filepath}: #{err}"
 
         try
             readStream.close()
@@ -220,7 +240,7 @@ saveHash = (hash, filepath) ->
             fs.unlink filepath, (err) ->
                 if err?
                     dup += " | error"
-                    console.log "Could not delete #{filepath}: #{err}"
+                    console.error "Could not delete #{filepath}: #{err}"
                 else
                     dup += " | deleted"
                     console.log "Deleted #{filepath}" if options.verbose
@@ -234,7 +254,7 @@ saveHash = (hash, filepath) ->
             fs.rename filepath, newPath, (err) ->
                 if err?
                     dup += " | error"
-                    console.log "Could not archive #{filepath}: #{err}"
+                    console.error "Could not archive #{filepath}: #{err}"
                 else
                     dup += " | archived"
                     console.log "Archived #{filepath}" if options.verbose
@@ -345,7 +365,14 @@ run = ->
 
     # First we get the parameters. If --help, it will end here.
     getParams()
-    console.log "Options: #{JSON.stringify(options, null, 0)}"
+
+    # Log current options.
+    optionsLog = []
+    for key, value of options
+        optionsLog.push "#{key}=#{value}" if value
+    optionsLog = optionsLog.join ", "
+
+    console.log "Options: #{optionsLog}"
     console.log ""
 
     folderTasks = []
@@ -355,8 +382,6 @@ run = ->
     for folder in folders
         console.log folder
         do (folder) -> folderTasks.push (callback) -> scanFolder folder, callback
-
-    console.log ""
 
     # Run run run!
     async.parallelLimit folderTasks, 2
