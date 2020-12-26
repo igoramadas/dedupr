@@ -100,27 +100,6 @@ export class Dedupr {
             }
         }
 
-        // Subfolders option is only allowed for a single folder.
-        if (this.options.subFolders) {
-            if (this.options.folders.length > 1) {
-                throw new Error(`Using the "subFolders" option is only allowed if you pass a single folder`)
-            }
-
-            const mainFolder = this.options.folders[0]
-            let folders = fs.readdirSync(mainFolder)
-
-            folders = folders.map((f) => path.join(mainFolder, f))
-            folders = folders.filter((f) => fs.statSync(f).isDirectory())
-
-            // Sort according to the reverse option.
-            folders.sort()
-            if (this.options.reverse) {
-                folders.reverse()
-            }
-
-            this.options.folders = folders
-        }
-
         // Scan folders and then process all files.
         try {
             for (let folder of this.options.folders) {

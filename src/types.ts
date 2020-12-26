@@ -6,8 +6,6 @@
 interface Options {
     /** List of folders to be scanned. */
     folders?: string[]
-    /** If a single folder is passed, use its direct subfolders as the source folders? */
-    subFolders?: boolean
     /** Valid file extensions. Default is all. */
     extensions?: string[]
     /** Full path to the output log file, default is dedupr.log. */
@@ -20,7 +18,7 @@ interface Options {
     console?: boolean
     /** Hashing algorithm to be used, defaut is SHA256. */
     hashAlgorithm?: string
-    /** Initial content of files that should be hashed. Default is 80000 (80MB). */
+    /** Initial content of files that should be hashed. Default is 20000 (20MB). */
     hashSize?: number
     /** Reverse the folders order? Default is false, so first file found is considered the original. */
     reverse?: boolean

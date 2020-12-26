@@ -17,8 +17,9 @@ export = async function () {
         u: {alias: "subfolders", type: "boolean", describe: "If a single folder is passed, use its subfolders as the source folders"},
         e: {alias: "extensions", type: "array", describe: "Allowed file extensions, default is all extensions"},
         o: {alias: "output", type: "string", describe: "Full path to the JSON output file, default is dedupr.json"},
-        s: {alias: "size", type: "number", describe: "How much data from each file should be hashed, default is 80000 (80MB)"},
-        h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha256"},
+        p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 5)"},
+        s: {alias: "size", type: "number", describe: "How much data from each file should be hashed, default is 20000 (20MB)"},
+        h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha1"},
         v: {alias: "verbose", type: "boolean", describe: "Verbose mode with extra logging"},
         r: {alias: "reverse", type: "boolean", describe: "Reverse the folders and files order (alphabetically descending)"},
         f: {alias: "filename", type: "boolean", describe: "Also consider filenames to check if a file is a duplicate"},
@@ -42,9 +43,9 @@ export = async function () {
     let options: Options = {
         console: true,
         folders: argOptions.argv._ as string[],
-        subFolders: hasValue(argOptions.argv.u) ? argOptions.argv.u : null,
         extensions: hasValue(argOptions.argv.e) ? (argOptions.argv.e as string[]) : null,
         output: hasValue(argOptions.argv.o) ? argOptions.argv.o : null,
+        parallel: hasValue(argOptions.argv.p) ? argOptions.argv.p : null,
         hashSize: hasValue(argOptions.argv.s) ? argOptions.argv.s : null,
         hashAlgorithm: hasValue(argOptions.argv.h) ? argOptions.argv.h : null,
         verbose: hasValue(argOptions.argv.v) ? argOptions.argv.v : null,
@@ -53,22 +54,22 @@ export = async function () {
         delete: hasValue(argOptions.argv.d) ? argOptions.argv.d : null
     }
 
-    // Hash size shortcuts (crazyfast 100KB, superfast 1MB, faster 5MB, fast 20MB).
+    // Hash size shortcuts (crazyfast 5KB MD5, superfast 100KB SHA1, faster 1MB SHA1, fast 5MB SHA1, safe 50MB SHA256).
     if (argOptions.argv.crazyfast) {
+        options.hashSize = 5
+        options.hashAlgorithm = "md5"
+    } else if (argOptions.argv.veryfast) {
         options.hashSize = 100
         options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.veryfast) {
+    } else if (argOptions.argv.faster) {
         options.hashSize = 1000
         options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.faster) {
+    } else if (argOptions.argv.fast) {
         options.hashSize = 5000
         options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.fast) {
-        options.hashSize = 20000
-        options.hashAlgorithm = "sha256"
     } else if (argOptions.argv.safe) {
-        options.hashSize = 1000000
-        options.hashAlgorithm = "sha512"
+        options.hashSize = 50000
+        options.hashAlgorithm = "sha256"
     }
 
     // Do it baby!
