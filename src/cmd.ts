@@ -18,7 +18,7 @@ export = async function () {
         e: {alias: "extensions", type: "array", describe: "Allowed file extensions, default is all extensions"},
         o: {alias: "output", type: "string", describe: "Full path to the JSON output file, default is dedupr.json"},
         p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 5)"},
-        s: {alias: "size", type: "number", describe: "How much data from each file should be hashed, default is 20000 (20MB)"},
+        s: {alias: "size", type: "number", describe: "How much data from each file should be hashed, default is 2000 (2MB)"},
         h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha1"},
         v: {alias: "verbose", type: "boolean", describe: "Verbose mode with extra logging"},
         r: {alias: "reverse", type: "boolean", describe: "Reverse the folders and files order (alphabetically descending)"},
@@ -54,18 +54,18 @@ export = async function () {
         delete: hasValue(argOptions.argv.d) ? argOptions.argv.d : null
     }
 
-    // Hash size shortcuts (crazyfast 5KB MD5, superfast 100KB SHA1, faster 1MB SHA1, fast 5MB SHA1, safe 50MB SHA256).
+    // Hash size shortcuts (crazyfast 5KB MD5, superfast 50KB SHA1, faster 300KB SHA1, fast 1MB SHA1, safe 50MB SHA256).
     if (argOptions.argv.crazyfast) {
         options.hashSize = 5
         options.hashAlgorithm = "md5"
     } else if (argOptions.argv.veryfast) {
-        options.hashSize = 100
+        options.hashSize = 50
         options.hashAlgorithm = "sha1"
     } else if (argOptions.argv.faster) {
-        options.hashSize = 1000
+        options.hashSize = 300
         options.hashAlgorithm = "sha1"
     } else if (argOptions.argv.fast) {
-        options.hashSize = 5000
+        options.hashSize = 1000
         options.hashAlgorithm = "sha1"
     } else if (argOptions.argv.safe) {
         options.hashSize = 50000

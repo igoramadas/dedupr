@@ -11,9 +11,9 @@ const currentFolder = process.cwd() + "/"
 
 // Default options.
 const defaultOptions: Options = {
-    parallel: 5,
     output: "dedupr.json",
-    hashSize: 100000,
+    parallel: 5,
+    hashSize: 5000,
     hashAlgorithm: "sha256"
 }
 
@@ -32,6 +32,9 @@ export class Dedupr {
         }
         if (!this.options.output) {
             this.options.output = defaultOptions.output
+        }
+        if (!this.options.parallel || this.options.parallel < 0) {
+            this.options.parallel = defaultOptions.parallel
         }
         if (!this.options.hashSize || this.options.hashSize < 0) {
             this.options.hashSize = defaultOptions.hashSize
@@ -67,9 +70,9 @@ export class Dedupr {
      * Start scanning the passed folders.
      */
     run = async (): Promise<void> => {
-        logInfo(defaultOptions, "##########")
-        logInfo(defaultOptions, "# Dedupr #")
-        logInfo(defaultOptions, "##########")
+        logInfo(this.options, "##########")
+        logInfo(this.options, "# Dedupr #")
+        logInfo(this.options, "##########")
 
         // Log options.
         const arr = Object.entries(this.options).map((opt) => (hasValue(opt[1]) ? `${opt[0]}: ${opt[1]}` : null))
@@ -96,8 +99,13 @@ export class Dedupr {
             const folder = this.options.folders[i]
 
             if (!path.isAbsolute(folder)) {
-                this.options.folders[i] = currentFolder + folder
+                this.options.folders[i] = path.join(currentFolder, folder)
             }
+        }
+
+        // Reverse folder order if option was passed.
+        if (this.options.reverse) {
+            this.options.folders.reverse()
         }
 
         // Scan folders and then process all files.
@@ -119,11 +127,12 @@ export class Dedupr {
         try {
             const duration = (Date.now() - this.startTime.valueOf()) / 1000
             const results = Object.values(this.results)
-            logDebug(this.options, `Found ${results.length} distinct files in total`)
 
             // Filter only file that had duplicates.
             const duplicates = results.filter((r) => r.duplicates.length > 0)
-            logInfo(this.options, `Found ${duplicates.length} files with duplicates in ${duration} seconds`)
+            const count = duplicates.map((d) => d.duplicates.length).reduce((a, b) => a + b, 0)
+
+            logInfo(this.options, `Found ${results.length} distinct files, ${count} duplicates in ${duration} seconds`)
 
             // Save results to a file?
             if (this.options.output) {
@@ -142,8 +151,8 @@ export class Dedupr {
      * @param folder Folder to be scanned.
      */
     scanFolder = async (folder: string): Promise<void> => {
-        const arrFiles = []
-        const arrFolders = []
+        const arrFiles: FileToHash[] = []
+        const arrFolders: string[] = []
 
         // Process files in alphabetical order by default, descending if "reverse" option is set.
         try {
@@ -158,9 +167,10 @@ export class Dedupr {
                 contents.reverse()
             }
 
-            // Iterate and parse files first.
+            // Iterate and parse files first, then folders.
             for (let filepath of contents) {
                 try {
+                    filepath = path.join(folder, filepath)
                     const stats = fs.statSync(filepath)
 
                     if (stats.isDirectory()) {
@@ -169,7 +179,7 @@ export class Dedupr {
                         const ext = path.extname(filepath).toLowerCase().replace(".", "")
 
                         if (!this.options.extensions || this.options.extensions.indexOf(ext) >= 0) {
-                            arrFiles.push(filepath)
+                            arrFiles.push({file: filepath, size: stats.size})
                         } else {
                             logDebug(this.options, `File ${filepath} does not have a valid extension, skip`)
                         }
@@ -183,9 +193,11 @@ export class Dedupr {
         }
 
         // First process the files in chunks (according to the parallel limit).
-        for (let i = 0, j = arrFiles.length; i < j; i += this.options.parallel) {
-            const chunk = arrFiles.slice(i, i + this.options.parallel)
-            await Promise.all(chunk.map(async (filepath: string) => await this.scanFile(filepath)))
+        if (arrFiles.length > 0) {
+            for (let i = 0, j = arrFiles.length; i < j; i += this.options.parallel) {
+                const chunk = arrFiles.slice(i, i + this.options.parallel)
+                await Promise.all(chunk.map(async (f: FileToHash) => await this.scanFile(f)))
+            }
         }
 
         // Then process subdirectories.
@@ -196,12 +208,12 @@ export class Dedupr {
 
     /**
      * Scan and generate a hash for the specified file.
-     * @param filepath Full file path.
+     * @param fileToHash File and size.
      */
-    scanFile = async (filepath: string): Promise<void> => {
+    scanFile = async (fileToHash: FileToHash): Promise<void> => {
         return new Promise((resolve) => {
             const hash = crypto.createHash(this.options.hashAlgorithm)
-            const readStream = fs.createReadStream(filepath)
+            const readStream = fs.createReadStream(fileToHash.file)
             const maxBytes = this.options.hashSize * 1024
             let failed = false
             let bytesRead = 0
@@ -210,15 +222,15 @@ export class Dedupr {
             const finish = () => {
                 try {
                     readStream.close()
-                } catch (ex) {
-                    logError(this.options, `Error closing hash stream for ${filepath}`, ex)
-                }
 
-                // Only add to the results if it didn't fail.
-                if (!failed) {
-                    this.processFile(filepath, hash.digest("hex"))
-                } else {
-                    logDebug(this.options, `File ${filepath} not added to results due to hash failure`)
+                    // Only add to the results if it didn't fail.
+                    if (!failed) {
+                        this.processFile(fileToHash, hash.digest("hex"))
+                    } else {
+                        logDebug(this.options, `File ${fileToHash.file} not added to results due to hash failure`)
+                    }
+                } catch (ex) {
+                    logError(this.options, `Error closing hash stream for ${fileToHash.file}`, ex)
                 }
 
                 resolve()
@@ -227,13 +239,13 @@ export class Dedupr {
             // Something went wrong? Log error and close the stream.
             const fail = (err) => {
                 failed = true
-                logError(this.options, `Error getting hash for ${filepath}`, err)
+                logError(this.options, `Error getting hash for ${fileToHash.file}`, err)
                 finish()
             }
 
             // Append file data to the hash.
-            readStream.on("data", function (data) {
-                if (maxBytes && bytesRead + data.length > maxBytes) {
+            readStream.on("data", (data) => {
+                if (maxBytes && bytesRead + data.length >= maxBytes) {
                     hash.update(data.slice(0, maxBytes - bytesRead))
                     return finish()
                 }
@@ -252,16 +264,23 @@ export class Dedupr {
      * @param filepath Full file path.
      * @param hash Computed hash value.
      */
-    processFile = (filepath: string, hash: string): void => {
-        const id = this.options.filename ? `${hash}-${path.basename(filepath)}` : hash
+    processFile = (fileToHash: FileToHash, hash: string): void => {
         let isDuplicate = false
+        let id = `${hash}-${fileToHash.size}`
 
+        // Check for filename as well to match duplicates?
+        if (this.options.filename) {
+            id += `-${path.basename(fileToHash.file)}`
+        }
+
+        // File already found? Mark as duplicate, otherwise create a new record on the results.
         if (this.results[id]) {
             isDuplicate = true
-            this.results[id].duplicates.push(filepath)
+            this.results[id].duplicates.push(fileToHash.file)
         } else {
             this.results[id] = {
-                file: filepath,
+                file: fileToHash.file,
+                size: fileToHash.size,
                 hash: hash,
                 duplicates: []
             }
@@ -269,19 +288,19 @@ export class Dedupr {
 
         // Not a duplicate? Stop here.
         if (!isDuplicate) {
-            return logDebug(this.options, `File processed: ${filepath} - ${hash}`)
+            return logDebug(this.options, `File processed: ${fileToHash.file} - ${hash}`)
         }
 
         // Delete duplicates?
         if (this.options.delete) {
             try {
-                fs.unlinkSync(filepath)
-                logInfo(this.options, `Duplicate deleted: ${filepath} - ${hash}`)
+                fs.unlinkSync(fileToHash.file)
+                logInfo(this.options, `Duplicate deleted: ${fileToHash.file} - ${hash}`)
             } catch (ex) {
-                logError(this.options, `Could not delete ${filepath}`, ex)
+                logError(this.options, `Could not delete ${fileToHash.file}`, ex)
             }
         } else {
-            logInfo(this.options, `Duplicate found: ${filepath} - ${hash}`)
+            logInfo(this.options, `Duplicate found: ${fileToHash.file} - ${hash}`)
         }
     }
 }

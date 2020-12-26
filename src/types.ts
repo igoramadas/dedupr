@@ -36,8 +36,20 @@ interface FileResult {
     file: string
     /** Computed file hash. */
     hash: string
+    /** File size in bytes. */
+    size: number
     /** Path to the duplicate files. */
     duplicates: string[]
     /** Any errors during the file scanning? */
     errors?: any
+}
+
+/**
+ * File which should have its hash computed.
+ */
+interface FileToHash {
+    /** Full path to the file. */
+    file: string
+    /** File size in bytes. */
+    size: number
 }
