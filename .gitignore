@@ -3,4 +3,5 @@
 .vscode
 lib/
 node_modules/
+test/files/
 dedupr.json
