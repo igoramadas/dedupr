@@ -1,7 +1,7 @@
 {
     "name": "dedupr",
-    "version": "2.0.0-alpha1",
-    "description": "Node.js utility to remove duplicates from the specified folders.",
+    "version": "2.0.0",
+    "description": "Node.js tool to find (or remove) duplicates from the specified folders.",
     "homepage": "http://github.com/igoramadas/dedupr",
     "author": "Igor Ramadas <igor@devv.com>",
     "license": "MIT",
