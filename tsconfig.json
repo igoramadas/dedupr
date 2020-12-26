@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "baseUrl": "",
+        "rootDir": "src",
+        "outDir": "lib",
+        "target": "es2018",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true,
+        "declaration": true,
+        "skipLibCheck": true
+    },
+    "typedocOptions": {
+        "excludeExternals": true,
+        "excludePrivate": true,
+        "mode": "modules",
+        "name": "Dedupr",
+        "out": "docs"
+    }
+}

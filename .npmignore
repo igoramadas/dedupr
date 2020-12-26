@@ -3,3 +3,5 @@
 .idea
 .git*
 .vscode
+dedupr.log
+src/
