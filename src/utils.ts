@@ -64,21 +64,3 @@ export function logError(options: Options, message: string, ex: Error) {
 export function hasValue(value: any): boolean {
     return value !== null && typeof value != "undefined"
 }
-
-/**
- * Helper to get a normalized tag name.
- * @param value Label or description.
- */
-export function normalizeTag(value: string): string {
-    const tag = value.toLowerCase().trim().replace("!", "")
-    return tag.replace(/  /g, " ").replace(/ /g, "-")
-}
-
-/**
- * Helper to get a score with 3 decimal places.
- * @param value Score to be normalized.
- */
-export function normalizeScore(value: number): number {
-    if (value < 0.001) return null
-    else return Math.round(value * 1000) / 1000
-}
