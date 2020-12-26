@@ -65,31 +65,118 @@
 				<a href="#dedupr" id="dedupr" style="color: inherit; text-decoration: none;">
 					<h1>Dedupr</h1>
 				</a>
-				<p>Quick and dirty Node.js tool to find and delete duplicate files. Supports MD5, SHA-1 and SHA-512 to generate checksums.</p>
+				<p>Quick and dirty Node.js tool to find (and delete) duplicate files. Not the fastest, not the most featured, not the most popular out there. No voodoo or magic involved. But it works pretty well, and can be used directly via the command line or imported as a library on your Node.js app.</p>
 				<p>Tested on OS X, Linux Ubuntu x86 and Windows 10 x64.</p>
 				<a href="#how-to-install" id="how-to-install" style="color: inherit; text-decoration: none;">
 					<h2>How to install</h2>
 				</a>
-				<pre><code>$ npm <span class="hljs-keyword">install</span> -g dedupr</code></pre>
-				<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
-					<h2>Usage</h2>
+				<p>To install globally on your machine please use:</p>
+				<pre><code>$ npm <span class="hljs-keyword">install</span> dedupr -g</code></pre>
+				<p>Or to install locally on your current project:</p>
+				<pre><code>$ npm install dedupr <span class="hljs-comment">--save</span></code></pre>
+				<a href="#command-line-usage" id="command-line-usage" style="color: inherit; text-decoration: none;">
+					<h2>Command line usage</h2>
 				</a>
-				<pre><code><span class="hljs-meta">$</span><span class="bash"> dedupr -<span class="hljs-built_in">help</span></span></code></pre>
-				<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
-					<h2>Examples</h2>
+				<pre><code><span class="hljs-symbol">$</span> dedupr -[<span class="hljs-keyword">options</span>] folders</code></pre>
+				<p>Detect duplicates on specific folders, using defaults:</p>
+				<pre><code>$ dedupr <span class="hljs-regexp">/home/</span>joe <span class="hljs-regexp">/home/</span>karen <span class="hljs-regexp">/home/</span>sara</code></pre>
+				<p>Detect duplicates on all user&#39;s home folders, with verbose mode:</p>
+				<pre><code>$ dedupr -v -u /<span class="hljs-built_in">home</span></code></pre>
+				<p>Delete duplicates on logged user&#39;s home folder, doing with the fast hashing preset:</p>
+				<pre><code>$ dedupr -d -u <span class="hljs-comment">--fast ~/</span></code></pre>
+				<p>Delete duplicate images considering filenames, reverse order, MD5 hashing of first 2KB of images:</p>
+				<pre><code>$ dedupr -f -r -d
+         -o <span class="hljs-regexp">/home/</span>custom-dedupr-output.json \
+         -e jpg gif png bmp \
+         -s <span class="hljs-number">2</span>
+         -h md5
+         ~<span class="hljs-regexp">/photos ~/</span>camera ~<span class="hljs-regexp">/pictures ~/</span>downloads</code></pre>
+				<a href="#importing-as-a-library" id="importing-as-a-library" style="color: inherit; text-decoration: none;">
+					<h2>Importing as a library</h2>
 				</a>
-				<a href="#checksum-first-10kb-using-md5-3-distinct-folders" id="checksum-first-10kb-using-md5-3-distinct-folders" style="color: inherit; text-decoration: none;">
-					<h3>Checksum first 10KB, using MD5, 3 distinct folders</h3>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> Dedupr <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;dedupr&quot;</span>
+<span class="hljs-comment">// const Dedupr = require(&quot;dedupr&quot;).default</span>
+
+<span class="hljs-keyword">const</span> options = {
+    <span class="hljs-attr">console</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-attr">folders</span>: [<span class="hljs-string">&quot;/home/user1/photos&quot;</span>, <span class="hljs-string">&quot;/home/user2/photos&quot;</span>, <span class="hljs-string">&quot;/home/user3/photos&quot;</span>],
+    <span class="hljs-attr">hashAlgorithm</span>: <span class="hljs-string">&quot;sha1&quot;</span>
+}
+
+<span class="hljs-keyword">const</span> deduplicator = <span class="hljs-keyword">new</span> Dedupr(options)
+<span class="hljs-keyword">await</span> deduplicator.run()
+
+<span class="hljs-built_in">console</span>.dir(deduplicator.results)</code></pre>
+				<a href="#options" id="options" style="color: inherit; text-decoration: none;">
+					<h2>Options</h2>
 				</a>
-				<pre><code>$ dedupr -crazyfast -md5 <span class="hljs-regexp">/directory1 /</span>directory2 <span class="hljs-regexp">/other-directories/</span>something</code></pre>
-				<a href="#checksum-first-5mb-archive-subfolders-of-homeuserphotos" id="checksum-first-5mb-archive-subfolders-of-homeuserphotos" style="color: inherit; text-decoration: none;">
-					<h3>Checksum first 5MB, archive, subfolders of /home/user/photos</h3>
+				<a href="#console" id="console" style="color: inherit; text-decoration: none;">
+					<h3>console</h3>
 				</a>
-				<pre><code>$ dedupr -faster -sub <span class="hljs-regexp">/home/u</span>ser/photos</code></pre>
-				<a href="#full-checksum-using-sha-512-delete-duplicates-2-distinct-folders" id="full-checksum-using-sha-512-delete-duplicates-2-distinct-folders" style="color: inherit; text-decoration: none;">
-					<h3>Full checksum, using SHA-512, delete duplicates, 2 distinct folders</h3>
+				<p>Enable or disable logging to the console. Enabled by default, but you can disable it programatically. <strong>Important:</strong> if you disable the console logging, any error or exception found will get thrown instead, and might potentially stop the file scanning.</p>
+				<a href="#extensions--e" id="extensions--e" style="color: inherit; text-decoration: none;">
+					<h3>extensions <em><code>-e</code></em></h3>
 				</a>
-				<pre><code>$ dedupr -sha512 -<span class="hljs-keyword">delete</span> <span class="hljs-regexp">/home/u</span>ser1<span class="hljs-regexp">/photos /</span>home<span class="hljs-regexp">/user2/</span>photos</code></pre>
+				<p>File extensions should be scanned. Defaults to all files.</p>
+				<a href="#output--o" id="output--o" style="color: inherit; text-decoration: none;">
+					<h3>output <em><code>-o</code></em></h3>
+				</a>
+				<p>Save results to the specified output file. Defaults to <code>dedupr.json</code> on the current folder.</p>
+				<a href="#parallel--p" id="parallel--p" style="color: inherit; text-decoration: none;">
+					<h3>parallel <em><code>-p</code></em></h3>
+				</a>
+				<p>How many files can be processed in parallel. Defaults to <code>5</code>.</p>
+				<a href="#hashsize--s" id="hashsize--s" style="color: inherit; text-decoration: none;">
+					<h3>hashSize <em><code>-s</code></em></h3>
+				</a>
+				<p>How much of the contents of each file should be used for the hashing algorithm? By default it only considers the first 20MB of a file, which is a quite conservative value.</p>
+				<a href="#hashalgorithm--h" id="hashalgorithm--h" style="color: inherit; text-decoration: none;">
+					<h3>hashAlgorithm <em><code>-h</code></em></h3>
+				</a>
+				<p>Which hashing algorithm should be used. Default is <code>sha1</code>. Some of the other possible values: &quot;sha224&quot;, &quot;sha256&quot;, &quot;sha512&quot;, &quot;md5&quot;, &quot;blake2b512&quot;.</p>
+				<a href="#filename--f" id="filename--f" style="color: inherit; text-decoration: none;">
+					<h3>filename <em><code>-f</code></em></h3>
+				</a>
+				<p>In addition to the hashing, also consider the filename to find duplicates. Meaning files will identical contents but different filenames won&#39;t be marked as duplicates. Default is <code>false</code>.</p>
+				<a href="#reverse--r" id="reverse--r" style="color: inherit; text-decoration: none;">
+					<h3>reverse <em><code>-r</code></em></h3>
+				</a>
+				<p>Sort folders and files from Z to A to 0 (descending). By default, they are sorted alphabetically (ascending). Please note that this also changes the order of the passed folders, so the very last occurrence of a file will be the non-duplicate.</p>
+				<a href="#verbose--v" id="verbose--v" style="color: inherit; text-decoration: none;">
+					<h3>verbose <em><code>-v</code></em></h3>
+				</a>
+				<p>Activate verbose mode with extra logging. Defaults to <code>false</code>.</p>
+				<a href="#delete--d" id="delete--d" style="color: inherit; text-decoration: none;">
+					<h3>delete <em><code>-d</code></em></h3>
+				</a>
+				<p>Delete duplicates. Only the very first occurrence of a file will remain (or very last, if <code>reverse</code> is set). <strong>Use with caution!</strong></p>
+				<a href="#shortcut-options" id="shortcut-options" style="color: inherit; text-decoration: none;">
+					<h2>Shortcut options</h2>
+				</a>
+				<a href="#--crazyfast" id="--crazyfast" style="color: inherit; text-decoration: none;">
+					<h3><em><code>--crazyfast</code></em></h3>
+				</a>
+				<p>Same as <code>-s 5 -h md5</code>. Hashes only first 5KB of files, using MD5.</p>
+				<a href="#--veryfast" id="--veryfast" style="color: inherit; text-decoration: none;">
+					<h3><em><code>--veryfast</code></em></h3>
+				</a>
+				<p>Same as <code>-s 100 -h sha1</code>. Hashes only first 100KB of files, using SHA1.</p>
+				<a href="#--faster" id="--faster" style="color: inherit; text-decoration: none;">
+					<h3><em><code>--faster</code></em></h3>
+				</a>
+				<p>Same as <code>-s 1000 -h sha1</code>. Hashes only first 1MB of files, using SHA1.</p>
+				<a href="#--fast" id="--fast" style="color: inherit; text-decoration: none;">
+					<h3><em><code>--fast</code></em></h3>
+				</a>
+				<p>Same as <code>-s 5000 -h sha1</code>. Hashes only first 5MB of files, using SHA1.</p>
+				<a href="#--safe" id="--safe" style="color: inherit; text-decoration: none;">
+					<h3><em><code>--safe</code></em></h3>
+				</a>
+				<p>Same as <code>-s 50000 -h sha256</code>. Hashes only first 50MB of files, using SHA256.</p>
+				<a href="#need-help" id="need-help" style="color: inherit; text-decoration: none;">
+					<h2>Need help?</h2>
+				</a>
+				<p>Post an issue.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
