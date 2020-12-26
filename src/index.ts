@@ -223,7 +223,7 @@ export class Dedupr {
         return new Promise((resolve) => {
             const hash = crypto.createHash(this.options.hashAlgorithm)
             const readStream = fs.createReadStream(filepath)
-            const maxBytes = this.options.hashSize
+            const maxBytes = this.options.hashSize * 1024
             let failed = false
             let bytesRead = 0
 
