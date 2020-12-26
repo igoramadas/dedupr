@@ -1,6 +1,6 @@
 .DS_Store
 .history
-.idea
 .vscode
-node_modules
-dedupr.log
+lib/
+node_modules/
+dedupr.json
