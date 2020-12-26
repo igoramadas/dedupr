@@ -1,6 +1,6 @@
 // COMMAND LINE WRAPPER
 
-import {hasValue} from "./utils"
+import {hasValue, logError} from "./utils"
 import Dedupr from "./index"
 import yargs = require("yargs")
 import yargsIntance = require("yargs/yargs")
@@ -72,6 +72,10 @@ export = async function () {
     }
 
     // Do it baby!
-    const dedupr = new Dedupr(options)
-    await dedupr.run()
+    try {
+        const dedupr = new Dedupr(options)
+        await dedupr.run()
+    } catch (ex) {
+        logError(options, `Failure to run`, ex)
+    }
 }
