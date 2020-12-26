@@ -71,14 +71,21 @@ export class Dedupr {
         logInfo(defaultOptions, "# Dedupr #")
         logInfo(defaultOptions, "##########")
 
-        if (!this.options.folders || this.options.folders.length < 1) {
-            throw new Error("No folders were passed")
-        }
-
         // Log options.
         const arr = Object.entries(this.options).map((opt) => (hasValue(opt[1]) ? `${opt[0]}: ${opt[1]}` : null))
         const logOptions = arr.filter((opt) => opt !== null)
         logDebug(this.options, `Options: ${logOptions.join(" | ")}`)
+
+        // At least one folder must be passed.
+        if (!this.options.folders || this.options.folders.length < 1) {
+            throw new Error("No folders were passed")
+        }
+
+        // Check if passed hash algorithm is available.
+        const availableHashes = crypto.getHashes()
+        if (availableHashes.indexOf(this.options.hashAlgorithm) < 0) {
+            throw new Error(`Hash algorithm ${this.options.hashAlgorithm} not supported`)
+        }
 
         // Reset state.
         this.results = {}
