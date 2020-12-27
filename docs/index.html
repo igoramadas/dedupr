@@ -84,7 +84,7 @@
 				<pre><code>$ dedupr -v -u /<span class="hljs-built_in">home</span></code></pre>
 				<p>Delete duplicates on logged user&#39;s home folder, doing with the fast hashing preset:</p>
 				<pre><code>$ dedupr -d -u <span class="hljs-comment">--fast ~/</span></code></pre>
-				<p>Delete duplicate images considering filenames, reverse order, MD5 hashing of first 2KB of images:</p>
+				<p>Delete duplicate images considering filenames, reverse order, MD5 hashing only the first and last 2KB of files:</p>
 				<pre><code>$ dedupr -f -r -d
          -o <span class="hljs-regexp">/home/</span>custom-dedupr-output.json \
          -e jpg gif png bmp \
@@ -129,7 +129,7 @@
 				<a href="#hashsize--s" id="hashsize--s" style="color: inherit; text-decoration: none;">
 					<h3>hashSize <em><code>-s</code></em></h3>
 				</a>
-				<p>How much of the contents of each file should be used for the hashing algorithm? By default it only considers the first 20MB of a file, which is a quite conservative value.</p>
+				<p>How many bytes should be hashed from the beginning and the end of each file? By default it only considers the first and last 5MB of a file, which should be good enough for the vast majority of cases.</p>
 				<a href="#hashalgorithm--h" id="hashalgorithm--h" style="color: inherit; text-decoration: none;">
 					<h3>hashAlgorithm <em><code>-h</code></em></h3>
 				</a>
@@ -156,27 +156,27 @@
 				<a href="#--crazyfast" id="--crazyfast" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--crazyfast</code></em></h3>
 				</a>
-				<p>Same as <code>-s 5 -h md5</code>. Hashes only first 5KB of files, using MD5.</p>
+				<p>Same as <code>-s 4 -h sha1</code>. Hashes only first and last 4KB of files, using SHA1. Use with caution, as this might catch lots of false positives.</p>
 				<a href="#--veryfast" id="--veryfast" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--veryfast</code></em></h3>
 				</a>
-				<p>Same as <code>-s 100 -h sha1</code>. Hashes only first 100KB of files, using SHA1.</p>
+				<p>Same as <code>-s 64 -h sha1</code>. Hashes only first and last 64KB of files, using SHA1.</p>
 				<a href="#--faster" id="--faster" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--faster</code></em></h3>
 				</a>
-				<p>Same as <code>-s 1000 -h sha1</code>. Hashes only first 1MB of files, using SHA1.</p>
+				<p>Same as <code>-s 512 -h sha1</code>. Hashes only first and last 512KB of files, using SHA1.</p>
 				<a href="#--fast" id="--fast" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--fast</code></em></h3>
 				</a>
-				<p>Same as <code>-s 5000 -h sha1</code>. Hashes only first 5MB of files, using SHA1.</p>
+				<p>Same as <code>-s 1024 -h sha256</code>. Hashes only first and last 1MB of files, using SHA256.</p>
 				<a href="#--safe" id="--safe" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--safe</code></em></h3>
 				</a>
-				<p>Same as <code>-s 50000 -h sha256</code>. Hashes only first 50MB of files, using SHA256.</p>
+				<p>Same as <code>-s 32768 -h sha512</code>. Hashes only first and last 32MB of files, using SHA512.</p>
 				<a href="#need-help" id="need-help" style="color: inherit; text-decoration: none;">
 					<h2>Need help?</h2>
 				</a>
-				<p>Post an issue.</p>
+				<p>Post an issue <a href="https://github.com/igoramadas/dedupr/issues">here</a>.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
