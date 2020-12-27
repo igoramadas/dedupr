@@ -30,7 +30,7 @@ Delete duplicates on logged user's home folder, doing with the fast hashing pres
 
     $ dedupr -d -u --fast ~/
 
-Delete duplicate images considering filenames, reverse order, MD5 hashing of first 2KB of images:
+Delete duplicate images considering filenames, reverse order, MD5 hashing only the first and last 2KB of files:
 
     $ dedupr -f -r -d
              -o /home/custom-dedupr-output.json \
@@ -77,7 +77,7 @@ How many files can be processed in parallel. Defaults to `5`.
 
 ### hashSize *`-s`*
 
-How much of the contents of each file should be used for the hashing algorithm? By default it only considers the first 20MB of a file, which is a quite conservative value.
+How many bytes should be hashed from the beginning and the end of each file? By default it only considers the first and last 2MB of a file, which should be safe enough for the vast majority of cases.
 
 ### hashAlgorithm *`-h`*
 
@@ -103,23 +103,23 @@ Delete duplicates. Only the very first occurrence of a file will remain (or very
 
 ### *`--crazyfast`*
 
-Same as `-s 5 -h md5`. Hashes only first 5KB of files, using MD5.
+Same as `-s 4 -h sha1`. Hashes only first and last 4KB of files, using SHA1. Use with caution, as this might catch some false positives.
 
 ### *`--veryfast`*
 
-Same as `-s 100 -h sha1`. Hashes only first 100KB of files, using SHA1.
+Same as `-s 64 -h sha1`. Hashes only first and last 64KB of files, using SHA1.
 
 ### *`--faster`*
 
-Same as `-s 1000 -h sha1`. Hashes only first 1MB of files, using SHA1.
+Same as `-s 512 -h sha1`. Hashes only first and last 512KB of files, using SHA1.
 
 ### *`--fast`*
 
-Same as `-s 5000 -h sha1`. Hashes only first 5MB of files, using SHA1.
+Same as `-s 1024 -h sha256`. Hashes only first and last 1MB of files, using SHA256.
 
 ### *`--safe`*
 
-Same as `-s 50000 -h sha256`. Hashes only first 50MB of files, using SHA256.
+Same as `-s 32768 -h sha512`. Hashes only first and last 32MB of files, using SHA512.
 
 ## Need help?
 

@@ -41,7 +41,12 @@ export = async function () {
 
     // Examples.
     argOptions.usage(`Usage: $0 -[options...] folders...`)
+    argOptions.example(`$ $0 --fast ~/`, "")
+    argOptions.example(`$ $0 --veryfast -e jpg gif png ~/photos ~/camera ~/downloads`, "")
+    argOptions.example(`$ $0 -f -d -h sha512 -o duplicate-report.json /backup`, "")
+    argOptions.example(`$ $0 -h md5 -s 16 /var`, "")
     argOptions.epilog("Need help? More info at https://github.com/igoramadas/dedupr")
+    argOptions.help().demandCommand(1, "")
 
     // Transform arguments to options.
     let options: Options = {
