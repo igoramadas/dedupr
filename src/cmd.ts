@@ -14,22 +14,26 @@ process.on("unhandledRejection", (err) => {
 
 export = async function () {
     const argOptions = yargsIntance(process.argv.slice(2)).options({
-        u: {alias: "subfolders", type: "boolean", describe: "If a single folder is passed, use its subfolders as the source folders"},
         e: {alias: "extensions", type: "array", describe: "Allowed file extensions, default is all extensions"},
         o: {alias: "output", type: "string", describe: "Full path to the JSON output file, default is dedupr.json"},
         p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 5)"},
-        s: {alias: "size", type: "number", describe: "How much data from each file should be hashed, default is 2000 (2MB)"},
+        s: {alias: "size", type: "number", describe: "How much data (kilobytes) to hash from start and end of each file"},
         h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha1"},
         v: {alias: "verbose", type: "boolean", describe: "Verbose mode with extra logging"},
         r: {alias: "reverse", type: "boolean", describe: "Reverse the folders and files order (alphabetically descending)"},
         f: {alias: "filename", type: "boolean", describe: "Also consider filenames to check if a file is a duplicate"},
         d: {alias: "delete", type: "boolean", describe: "Delete duplicate files"},
-        crazyfast: {type: "boolean", describe: "Shortcut to --size 100, --hash sha1"},
-        veryfast: {type: "boolean", describe: "Shortcut to --size 1000, --hash sha1"},
-        faster: {type: "boolean", describe: "Shortcut to --size 5000, --hash sha1"},
-        fast: {type: "boolean", describe: "Shortcut to --size 20000, --hash sha256"},
-        safe: {type: "boolean", describe: "Shortcut to --size 1000000, --hash sha512"}
+        crazyfast: {type: "boolean", describe: "Shortcut to --size 4, --hash sha1"},
+        veryfast: {type: "boolean", describe: "Shortcut to --size 64, --hash sha1"},
+        faster: {type: "boolean", describe: "Shortcut to --size 512, --hash sha1"},
+        fast: {type: "boolean", describe: "Shortcut to --size 1024, --hash sha256"},
+        safe: {type: "boolean", describe: "Shortcut to --size 32768, --hash sha512"}
     })
+
+    // Option grouping.
+    argOptions.group(["e", "o", "r", "f", "d"], "Options:")
+    argOptions.group(["p", "s", "h"], "Advanced:")
+    argOptions.group(["crazyfast", "veryfast", "faster", "fast", "safe"], "Shortcuts:")
 
     // Command line options.
     argOptions.env("DEDUPR")
@@ -54,22 +58,22 @@ export = async function () {
         delete: hasValue(argOptions.argv.d) ? argOptions.argv.d : null
     }
 
-    // Hash size shortcuts (crazyfast 5KB MD5, superfast 50KB SHA1, faster 300KB SHA1, fast 1MB SHA1, safe 50MB SHA256).
+    // Hash size shortcuts (crazyfast 4KB MD5, superfast 64KB SHA1, faster 512KB SHA1, fast 1MB SHA1, safe 48MB SHA412).
     if (argOptions.argv.crazyfast) {
-        options.hashSize = 5
-        options.hashAlgorithm = "md5"
+        options.hashSize = 4
+        options.hashAlgorithm = "sha1"
     } else if (argOptions.argv.veryfast) {
-        options.hashSize = 50
+        options.hashSize = 64
         options.hashAlgorithm = "sha1"
     } else if (argOptions.argv.faster) {
-        options.hashSize = 300
+        options.hashSize = 512
         options.hashAlgorithm = "sha1"
     } else if (argOptions.argv.fast) {
-        options.hashSize = 1000
-        options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.safe) {
-        options.hashSize = 50000
+        options.hashSize = 1024
         options.hashAlgorithm = "sha256"
+    } else if (argOptions.argv.safe) {
+        options.hashSize = 32768
+        options.hashAlgorithm = "sha512"
     }
 
     // Do it baby!

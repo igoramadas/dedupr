@@ -13,7 +13,7 @@ const currentFolder = process.cwd() + "/"
 const defaultOptions: Options = {
     output: "dedupr.json",
     parallel: 5,
-    hashSize: 5000,
+    hashSize: 2048,
     hashAlgorithm: "sha256"
 }
 
@@ -208,60 +208,45 @@ export class Dedupr {
 
     /**
      * Scan and generate a hash for the specified file.
-     * @param fileToHash File and size.
+     * @param fileToHash File path and size.
      */
     scanFile = async (fileToHash: FileToHash): Promise<void> => {
-        return new Promise((resolve) => {
+        try {
             const hash = crypto.createHash(this.options.hashAlgorithm)
-            const readStream = fs.createReadStream(fileToHash.file)
-            const maxBytes = this.options.hashSize * 1024
-            let failed = false
-            let bytesRead = 0
+            let hasEnd = true
+            let size = this.options.hashSize * 1024
 
-            // Finished reading file, close the stream and get hash digest.
-            const finish = () => {
-                try {
-                    readStream.close()
-
-                    // Only add to the results if it didn't fail.
-                    if (!failed) {
-                        this.processFile(fileToHash, hash.digest("hex"))
-                    } else {
-                        logDebug(this.options, `File ${fileToHash.file} not added to results due to hash failure`)
-                    }
-                } catch (ex) {
-                    logError(this.options, `Error closing hash stream for ${fileToHash.file}`, ex)
-                }
-
-                resolve()
+            // If file is too small, hash it all at once.
+            if (fileToHash.size < size * 2) {
+                hasEnd = false
+                size = fileToHash.size
             }
 
-            // Something went wrong? Log error and close the stream.
-            const fail = (err) => {
-                failed = true
-                logError(this.options, `Error getting hash for ${fileToHash.file}`, err)
-                finish()
+            const fd = await fs.promises.open(fileToHash.file, "r")
+
+            // Read first part of the file.
+            const fStart = await fd.read(Buffer.alloc(size), 0, size, 0)
+            hash.update(fStart.buffer)
+
+            // If file is bigger than the specified hash size, read the last portion.
+            if (hasEnd) {
+                const pos = fileToHash.size - this.options.hashSize * 1024
+                const fEnd = await fd.read(Buffer.alloc(size), 0, size, pos)
+                hash.update(fEnd.buffer)
             }
 
-            // Append file data to the hash.
-            readStream.on("data", (data) => {
-                if (maxBytes && bytesRead + data.length >= maxBytes) {
-                    hash.update(data.slice(0, maxBytes - bytesRead))
-                    return finish()
-                }
+            await fd.close()
 
-                bytesRead += data.length
-                hash.update(data)
-            })
-
-            readStream.on("end", finish)
-            readStream.on("error", fail)
-        })
+            // Check duplicates.
+            this.processFile(fileToHash, hash.digest("hex"))
+        } catch (ex) {
+            logError(this.options, `Error reading ${fileToHash.file}`, ex)
+        }
     }
 
     /**
      * Save the hash value for the specified file.
-     * @param filepath Full file path.
+     * @param fileToHash File path and size.
      * @param hash Computed hash value.
      */
     processFile = (fileToHash: FileToHash, hash: string): void => {
@@ -300,7 +285,11 @@ export class Dedupr {
                 logError(this.options, `Could not delete ${fileToHash.file}`, ex)
             }
         } else {
-            logInfo(this.options, `Duplicate found: ${fileToHash.file} - ${hash}`)
+            if (this.results[id].duplicates.length == 1) {
+                logInfo(this.options, `File has duplicate(s): ${this.results[id].file} - ${hash}`)
+            }
+
+            logDebug(this.options, `Duplicate found: ${fileToHash.file} - ${hash}`)
         }
     }
 }
