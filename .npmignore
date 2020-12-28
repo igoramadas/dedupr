@@ -1,8 +1,10 @@
 .DS_Store
 .history
 .vscode
+.git*
+docs/
 lib/
 node_modules/
 src/
-test/files/
+test/
 dedupr.json
