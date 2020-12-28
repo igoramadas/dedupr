@@ -37,17 +37,13 @@ export function logWarn(options: Options, message: string) {
 }
 
 /**
- * Helper to log errors according to the verbose option. If console logging
- * is disable on options, it will throw the passed error instead.
+ * Helper to log errors according to the verbose option.
  * @param options Program options.
  * @param message Message to be logged.
  * @param ex Exception object to be logged.
  */
 export function logError(options: Options, message: string, ex: Error) {
-    if (!options.console) {
-        ex.message = `${message} | ${ex.message}`
-        throw ex
-    }
+    if (!options.console) return
 
     if (options.verbose) {
         logger.error(message)
