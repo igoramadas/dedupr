@@ -16,13 +16,13 @@ export = async function () {
     const argOptions = yargsIntance(process.argv.slice(2)).options({
         e: {alias: "extensions", type: "array", describe: "Allowed file extensions, default is all extensions"},
         o: {alias: "output", type: "string", describe: "Full path to the JSON output file, default is dedupr.json"},
-        p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 5)"},
-        s: {alias: "size", type: "number", describe: "How much data (kilobytes) to hash from start and end of each file"},
-        h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha1"},
         v: {alias: "verbose", type: "boolean", describe: "Verbose mode with extra logging"},
         r: {alias: "reverse", type: "boolean", describe: "Reverse the folders and files order (alphabetically descending)"},
         f: {alias: "filename", type: "boolean", describe: "Also consider filenames to check if a file is a duplicate"},
         d: {alias: "delete", type: "boolean", describe: "Delete duplicate files"},
+        p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 5)"},
+        s: {alias: "size", type: "number", describe: "How much data (kilobytes) to hash from start and end of each file"},
+        h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha1"},
         crazyfast: {type: "boolean", describe: "Shortcut to --size 4, --hash sha1"},
         veryfast: {type: "boolean", describe: "Shortcut to --size 64, --hash sha1"},
         faster: {type: "boolean", describe: "Shortcut to --size 512, --hash sha1"},
@@ -32,7 +32,7 @@ export = async function () {
 
     // Option grouping.
     argOptions.group(["e", "o", "r", "f", "d"], "Options:")
-    argOptions.group(["p", "s", "h"], "Advanced:")
+    argOptions.group(["p", "s", "h"], "Advanced options:")
     argOptions.group(["crazyfast", "veryfast", "faster", "fast", "safe"], "Shortcuts:")
 
     // Command line options.
@@ -54,13 +54,13 @@ export = async function () {
         folders: argOptions.argv._ as string[],
         extensions: hasValue(argOptions.argv.e) ? (argOptions.argv.e as string[]) : null,
         output: hasValue(argOptions.argv.o) ? argOptions.argv.o : null,
-        parallel: hasValue(argOptions.argv.p) ? argOptions.argv.p : null,
-        hashSize: hasValue(argOptions.argv.s) ? argOptions.argv.s : null,
-        hashAlgorithm: hasValue(argOptions.argv.h) ? argOptions.argv.h : null,
         verbose: hasValue(argOptions.argv.v) ? argOptions.argv.v : null,
         reverse: hasValue(argOptions.argv.r) ? argOptions.argv.r : null,
         filename: hasValue(argOptions.argv.f) ? argOptions.argv.f : null,
-        delete: hasValue(argOptions.argv.d) ? argOptions.argv.d : null
+        delete: hasValue(argOptions.argv.d) ? argOptions.argv.d : null,
+        parallel: hasValue(argOptions.argv.p) ? argOptions.argv.p : null,
+        hashSize: hasValue(argOptions.argv.s) ? argOptions.argv.s : null,
+        hashAlgorithm: hasValue(argOptions.argv.h) ? argOptions.argv.h : null
     }
 
     // Hash size shortcuts (crazyfast 4KB MD5, superfast 64KB SHA1, faster 512KB SHA1, fast 1MB SHA1, safe 48MB SHA412).

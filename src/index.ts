@@ -28,7 +28,7 @@ export class Dedupr {
         if (!this.options.extensions || this.options.extensions.length < 0 || this.options.extensions.indexOf("*") >= 0) {
             this.options.extensions = null
         } else {
-            this.options.extensions = this.options.extensions.map((e) => e.toLowerCase())
+            this.options.extensions = this.options.extensions.map((e) => e.toLowerCase().replace(".", ""))
         }
         if (!this.options.output) {
             this.options.output = defaultOptions.output
