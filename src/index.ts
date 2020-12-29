@@ -30,13 +30,13 @@ export class Dedupr {
         } else {
             this.options.extensions = this.options.extensions.map((e) => e.toLowerCase().replace(".", ""))
         }
-        if (!this.options.output) {
+        if (!this.options.output && this.options.output != "false") {
             this.options.output = defaultOptions.output
         }
-        if (!this.options.parallel || this.options.parallel < 0) {
+        if (!this.options.parallel) {
             this.options.parallel = defaultOptions.parallel
         }
-        if (!this.options.hashSize || this.options.hashSize < 0) {
+        if (!this.options.hashSize) {
             this.options.hashSize = defaultOptions.hashSize
         }
         if (!this.options.hashAlgorithm) {
@@ -62,26 +62,31 @@ export class Dedupr {
     results: {[id: string]: FileResult}
 
     /**
-     * If running, when did the process start.
-     */
-    startTime: Date
-
-    /**
      * Start scanning the passed folders.
      */
     run = async (): Promise<void> => {
+        const startTime = new Date().valueOf()
+
+        // Header.
         logInfo(this.options, "##########")
         logInfo(this.options, "# Dedupr #")
         logInfo(this.options, "##########")
+        logInfo(this.options, "")
 
         // Log options.
         const arr = Object.entries(this.options).map((opt) => (hasValue(opt[1]) ? `${opt[0]}: ${opt[1]}` : null))
         const logOptions = arr.filter((opt) => opt !== null)
         logDebug(this.options, `Options: ${logOptions.join(" | ")}`)
 
-        // At least one folder must be passed.
+        // Basic command validation.
         if (!this.options.folders || this.options.folders.length < 1) {
             throw new Error("No folders were passed")
+        }
+        if (!this.options.parallel || this.options.parallel < 1) {
+            throw new Error("The parallel option must be at least 1")
+        }
+        if (!this.options.hashSize || this.options.hashSize < 1) {
+            throw new Error("The hashSize option must be at least 1")
         }
 
         // Check if passed hash algorithm is available.
@@ -92,7 +97,6 @@ export class Dedupr {
 
         // Reset state.
         this.results = {}
-        this.startTime = new Date()
 
         // Make sure folders are absolute paths.
         for (let i = 0; i < this.options.folders.length; i++) {
@@ -115,32 +119,39 @@ export class Dedupr {
             }
 
             this.end()
+
+            // Finish it!
+            const duration = ((Date.now() - startTime.valueOf()) / 1000).toFixed(3)
+            logInfo(this.options, `Finished in ${duration} seconds`)
+            logInfo(this.options, "")
         } catch (ex) {
-            logError(this.options, `Failure processing files`, ex)
+            logError(this.options, `Failure`, ex)
         }
     }
 
     /**
-     * When the scanning has finished, delete duplicates (if set on options) and save to the output.
+     * Save the output when scanning has finished.
      */
     end = (): void => {
         try {
-            const duration = (Date.now() - this.startTime.valueOf()) / 1000
             const results = Object.values(this.results)
 
             // Filter only file that had duplicates.
             const duplicates = results.filter((r) => r.duplicates.length > 0)
             const count = duplicates.map((d) => d.duplicates.length).reduce((a, b) => a + b, 0)
 
-            logInfo(this.options, `Found ${results.length} distinct files, ${count} duplicates in ${duration} seconds`)
+            logInfo(this.options, `Found ${results.length} distinct files and ${count} duplicates`)
 
             // Save results to a file?
             if (this.options.output) {
-                fs.writeFileSync(this.options.output, JSON.stringify(duplicates, null, 2), "utf8")
-                logInfo(this.options, `Saved output to ${this.options.output}`)
-            }
+                let targetFile = this.options.output
+                if (!path.isAbsolute(targetFile)) {
+                    targetFile = path.join(currentFolder, targetFile)
+                }
 
-            logInfo(this.options, "")
+                fs.writeFileSync(targetFile, JSON.stringify(duplicates, null, 2), "utf8")
+                logInfo(this.options, `Saved output to ${targetFile}`)
+            }
         } catch (ex) {
             logError(this.options, `Failure ending the program`, ex)
         }
@@ -153,6 +164,11 @@ export class Dedupr {
     scanFolder = async (folder: string): Promise<void> => {
         const arrFiles: FileToHash[] = []
         const arrFolders: string[] = []
+
+        // Stop right here if folder does not exist.
+        if (!fs.existsSync(folder)) {
+            throw new Error(`Folder ${folder} does not exist`)
+        }
 
         // Process files in alphabetical order by default, descending if "reverse" option is set.
         try {
@@ -181,15 +197,15 @@ export class Dedupr {
                         if (!this.options.extensions || this.options.extensions.indexOf(ext) >= 0) {
                             arrFiles.push({file: filepath, size: stats.size})
                         } else {
-                            logDebug(this.options, `File ${filepath} does not have a valid extension, skip`)
+                            logDebug(this.options, `File ${filepath} does not have a valid extension`)
                         }
                     }
                 } catch (innerEx) {
-                    logError(this.options, `Error parsing ${filepath}`, innerEx)
+                    logError(this.options, `Error parsing: ${filepath}`, innerEx)
                 }
             }
         } catch (ex) {
-            logError(this.options, `Error reading ${folder}`, ex)
+            logError(this.options, `Error reading: ${folder}`, ex)
         }
 
         // First process the files in chunks (according to the parallel limit).
@@ -216,7 +232,7 @@ export class Dedupr {
             let hasEnd = true
             let size = this.options.hashSize * 1024
 
-            // If file is too small, hash it all at once.
+            // If file is small enough, hash it all at once.
             if (fileToHash.size < size * 2) {
                 hasEnd = false
                 size = fileToHash.size
@@ -235,12 +251,12 @@ export class Dedupr {
                 hash.update(fEnd.buffer)
             }
 
+            // Close file and check duplicates.
             await fd.close()
-
-            // Check duplicates.
             this.processFile(fileToHash, hash.digest("hex"))
         } catch (ex) {
-            logError(this.options, `Error reading ${fileToHash.file}`, ex)
+            logError(this.options, `Error reading: ${fileToHash.file}`, ex)
+            this.processFile(fileToHash, null, ex.message || ex.toString())
         }
     }
 
@@ -249,11 +265,22 @@ export class Dedupr {
      * @param fileToHash File path and size.
      * @param hash Computed hash value.
      */
-    processFile = (fileToHash: FileToHash, hash: string): void => {
+    processFile = (fileToHash: FileToHash, hash: string, error?: string): void => {
         let isDuplicate = false
-        let id = `${hash}-${fileToHash.size}`
 
-        // Check for filename as well to match duplicates?
+        // Error getting the file hash? Add error details and stop here.
+        if (error) {
+            this.results[fileToHash.file] = {
+                file: fileToHash.file,
+                size: fileToHash.size,
+                error: error
+            }
+
+            return
+        }
+
+        // Get the unique ID based on file size, hash and (optioal) filename.
+        let id = `${hash}-${fileToHash.size}`
         if (this.options.filename) {
             id += `-${path.basename(fileToHash.file)}`
         }
@@ -282,7 +309,7 @@ export class Dedupr {
                 fs.unlinkSync(fileToHash.file)
                 logInfo(this.options, `Duplicate deleted: ${fileToHash.file} - ${hash}`)
             } catch (ex) {
-                logError(this.options, `Could not delete ${fileToHash.file}`, ex)
+                logError(this.options, `Could not delete: ${fileToHash.file}`, ex)
             }
         } else {
             if (this.results[id].duplicates.length == 1) {

@@ -34,14 +34,14 @@ interface Options {
 interface FileResult {
     /** Full path to the original file. */
     file: string
-    /** Computed file hash. */
-    hash: string
     /** File size in bytes. */
     size: number
+    /** Computed file hash. */
+    hash?: string
     /** Path to the duplicate files. */
-    duplicates: string[]
+    duplicates?: string[]
     /** Any errors during the file scanning? */
-    errors?: any
+    error?: any
 }
 
 /**
