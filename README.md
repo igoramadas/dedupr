@@ -38,11 +38,11 @@ Delete duplicates on logged user's home folder, using the "fast" hashing preset:
 
 Delete duplicate images considering filenames, reverse order, MD5 hashing only the first and last 2KB of files:
 
-    $ dedupr -f -r -d
-             -o /home/custom-dedupr-output.json \
+    $ dedupr -o /home/custom-dedupr-output.json \
              -e jpg gif png bmp \
              -s 2
              -h md5
+             -f -r -d
              ~/photos ~/camera ~/pictures ~/downloads
 
 ## Importing as a library
@@ -69,13 +69,17 @@ console.dir(dedupr.results)
 
 Enable or disable logging to the console. Enabled by default when using via the command line, but not when using it as a library / programatically.
 
+### folders
+
+List of folders that should be scanned. On the command line, these are the last arguments to be passed. If any of these folders do not exist, the tool will throw an exception.
+
 ### extensions *`-e`*
 
 Array of file extensions that should be included. Defaults to all files.
 
 ### output *`-o`*
 
-Save results to the specified output file. Defaults to `dedupr.json` on the current folder.
+Save results to the specified output file. Defaults to `dedupr.json` on the current folder. If you want to disable saving the output, set this to `false`
 
 ### reverse *`-r`*
 
