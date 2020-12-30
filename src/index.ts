@@ -30,7 +30,7 @@ export class Dedupr {
         } else {
             this.options.extensions = this.options.extensions.map((e) => e.toLowerCase().replace(".", ""))
         }
-        if (!this.options.output && this.options.output != "false") {
+        if (!this.options.output) {
             this.options.output = defaultOptions.output
         }
         if (!this.options.parallel) {
@@ -43,6 +43,11 @@ export class Dedupr {
             this.options.hashAlgorithm = defaultOptions.hashAlgorithm
         } else {
             this.options.hashAlgorithm = this.options.hashAlgorithm.toLocaleLowerCase()
+        }
+
+        // Do not save output?
+        if (this.options.output == "false"){
+            this.options.output = null
         }
 
         // Make sure the logger is set.
@@ -121,7 +126,7 @@ export class Dedupr {
             this.end()
 
             // Finish it!
-            const duration = ((Date.now() - startTime.valueOf()) / 1000).toFixed(3)
+            const duration = ((Date.now().valueOf() - startTime) / 1000).toFixed(3)
             logInfo(this.options, `Finished in ${duration} seconds`)
             logInfo(this.options, "")
         } catch (ex) {
