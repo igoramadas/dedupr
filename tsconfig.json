@@ -13,6 +13,7 @@
         "skipLibCheck": true
     },
     "typedocOptions": {
+        "entryPoints": ["./src/"],
         "excludeExternals": true,
         "excludePrivate": true,
         "mode": "modules",

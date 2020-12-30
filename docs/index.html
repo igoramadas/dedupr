@@ -7,6 +7,7 @@
 	<meta name="description" content="Documentation for Dedupr">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
 </head>
 <body>
 <header>
@@ -38,8 +39,6 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
-							<input type="checkbox" id="tsd-filter-only-exported" />
-							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
 					</div>
 					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
@@ -49,11 +48,6 @@
 	</div>
 	<div class="tsd-page-title">
 		<div class="container">
-			<ul class="tsd-breadcrumb">
-				<li>
-					<a href="globals.html">Globals</a>
-				</li>
-			</ul>
 			<h1>Dedupr</h1>
 		</div>
 	</div>
@@ -65,83 +59,92 @@
 				<a href="#dedupr" id="dedupr" style="color: inherit; text-decoration: none;">
 					<h1>Dedupr</h1>
 				</a>
-				<p>Quick and dirty Node.js tool to find (and delete) duplicate files. Not the fastest, not the most featured, not the most popular out there. No voodoo or magic involved. But it works pretty well, and can be used directly via the command line or imported as a library on your Node.js app.</p>
-				<p>Tested on OS X, Linux Ubuntu x86 and Windows 10 x64.</p>
+				<p>Quick and dirty Node.js tool to find (and delete) duplicate files. Not the fastest, not the most featured, not the most popular out there, and no voodoo involved. But it works pretty well, and can be used directly via the command line or imported as a library on your Node.js app.</p>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
+				<ul>
+					<li>Can be used via command line or imported as a library</li>
+					<li>Find duplicates based on file size, content hash and filenames (optional)</li>
+					<li>Supports most common hashing algorithms (SHA1, SHA256, SHA512, MD4, MD5 etc)</li>
+					<li>Delete duplicates automatically (optional)</li>
+					<li>Results are exported to a JSON file</li>
+				</ul>
 				<a href="#how-to-install" id="how-to-install" style="color: inherit; text-decoration: none;">
 					<h2>How to install</h2>
 				</a>
 				<p>To install globally on your machine please use:</p>
-				<pre><code>$ npm <span class="hljs-keyword">install</span> dedupr -g</code></pre>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">npm</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> -</span><span style="color: #001080">g</span>
+</code></pre>
 				<p>Or to install locally on your current project:</p>
-				<pre><code>$ npm install dedupr <span class="hljs-comment">--save</span></code></pre>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">npm</span><span style="color: #000000"> </span><span style="color: #001080">install</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> --</span><span style="color: #001080">save</span>
+</code></pre>
 				<a href="#command-line-usage" id="command-line-usage" style="color: inherit; text-decoration: none;">
 					<h2>Command line usage</h2>
 				</a>
-				<pre><code><span class="hljs-symbol">$</span> dedupr -[<span class="hljs-keyword">options</span>] folders</code></pre>
-				<p>Detect duplicates on specific folders, using defaults:</p>
-				<pre><code>$ dedupr <span class="hljs-regexp">/home/</span>joe <span class="hljs-regexp">/home/</span>karen <span class="hljs-regexp">/home/</span>sara</code></pre>
-				<p>Detect duplicates on all user&#39;s home folders, with verbose mode:</p>
-				<pre><code>$ dedupr -v -u /<span class="hljs-built_in">home</span></code></pre>
-				<p>Delete duplicates on logged user&#39;s home folder, doing with the fast hashing preset:</p>
-				<pre><code>$ dedupr -d -u <span class="hljs-comment">--fast ~/</span></code></pre>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> -[</span><span style="color: #001080">options</span><span style="color: #000000">] </span><span style="color: #001080">folders</span>
+</code></pre>
+				<p>Detect duplicates on some user folders, using defaults:</p>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> /</span><span style="color: #001080">home</span><span style="color: #000000">/</span><span style="color: #001080">joe</span><span style="color: #000000"> /</span><span style="color: #001080">home</span><span style="color: #000000">/</span><span style="color: #001080">karen</span><span style="color: #000000"> /</span><span style="color: #001080">home</span><span style="color: #000000">/</span><span style="color: #001080">sara</span>
+</code></pre>
+				<p>Detect duplicates on all user&#39;s home folders, verbose mode activated:</p>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> -</span><span style="color: #001080">v</span><span style="color: #000000"> /</span><span style="color: #001080">home</span>
+</code></pre>
+				<p>Delete duplicates on logged user&#39;s home folder, using the &quot;fast&quot; hashing preset:</p>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> -</span><span style="color: #001080">d</span><span style="color: #000000"> --</span><span style="color: #001080">fast</span><span style="color: #000000"> ~/</span>
+</code></pre>
 				<p>Delete duplicate images considering filenames, reverse order, MD5 hashing only the first and last 2KB of files:</p>
-				<pre><code>$ dedupr -f -r -d
-         -o <span class="hljs-regexp">/home/</span>custom-dedupr-output.json \
-         -e jpg gif png bmp \
-         -s <span class="hljs-number">2</span>
-         -h md5
-         ~<span class="hljs-regexp">/photos ~/</span>camera ~<span class="hljs-regexp">/pictures ~/</span>downloads</code></pre>
+				<pre><code><span style="color: #001080">$</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000"> -</span><span style="color: #001080">o</span><span style="color: #000000"> /</span><span style="color: #001080">home</span><span style="color: #000000">/</span><span style="color: #001080">custom</span><span style="color: #000000">-</span><span style="color: #001080">dedupr</span><span style="color: #000000">-</span><span style="color: #001080">output</span><span style="color: #000000">.</span><span style="color: #001080">json</span><span style="color: #000000"> \</span>
+<span style="color: #000000">         -</span><span style="color: #001080">e</span><span style="color: #000000"> </span><span style="color: #001080">jpg</span><span style="color: #000000"> </span><span style="color: #001080">gif</span><span style="color: #000000"> </span><span style="color: #001080">png</span><span style="color: #000000"> </span><span style="color: #001080">bmp</span><span style="color: #000000"> \</span>
+<span style="color: #000000">         -</span><span style="color: #001080">s</span><span style="color: #000000"> </span><span style="color: #098658">2</span>
+<span style="color: #000000">         -</span><span style="color: #001080">h</span><span style="color: #000000"> </span><span style="color: #001080">md5</span>
+<span style="color: #000000">         -</span><span style="color: #001080">f</span><span style="color: #000000"> -</span><span style="color: #001080">r</span><span style="color: #000000"> -</span><span style="color: #001080">d</span>
+<span style="color: #000000">         ~/</span><span style="color: #001080">photos</span><span style="color: #000000"> ~/</span><span style="color: #001080">camera</span><span style="color: #000000"> ~/</span><span style="color: #001080">pictures</span><span style="color: #000000"> ~/</span><span style="color: #001080">downloads</span>
+</code></pre>
 				<a href="#importing-as-a-library" id="importing-as-a-library" style="color: inherit; text-decoration: none;">
 					<h2>Importing as a library</h2>
 				</a>
-				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> Dedupr <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;dedupr&quot;</span>
-<span class="hljs-comment">// const Dedupr = require(&quot;dedupr&quot;).default</span>
+				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #001080">Dedupr</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;dedupr&quot;</span>
+<span style="color: #008000">// const Dedupr = require(&quot;dedupr&quot;).default</span>
 
-<span class="hljs-keyword">const</span> options = {
-    <span class="hljs-attr">console</span>: <span class="hljs-literal">true</span>,
-    <span class="hljs-attr">folders</span>: [<span class="hljs-string">&quot;/home/user1/photos&quot;</span>, <span class="hljs-string">&quot;/home/user2/photos&quot;</span>, <span class="hljs-string">&quot;/home/user3/photos&quot;</span>],
-    <span class="hljs-attr">hashAlgorithm</span>: <span class="hljs-string">&quot;sha1&quot;</span>
-}
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">console:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">folders:</span><span style="color: #000000"> [</span><span style="color: #A31515">&quot;/home/user1/photos&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;/home/user2/photos&quot;</span><span style="color: #000000">, </span><span style="color: #A31515">&quot;/home/user3/photos&quot;</span><span style="color: #000000">],</span>
+<span style="color: #000000">    </span><span style="color: #001080">hashAlgorithm:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;sha1&quot;</span>
+<span style="color: #000000">}</span>
 
-<span class="hljs-keyword">const</span> deduplicator = <span class="hljs-keyword">new</span> Dedupr(options)
-<span class="hljs-keyword">await</span> deduplicator.run()
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">dedupr</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">Dedupr</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">)</span>
+<span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">dedupr</span><span style="color: #000000">.</span><span style="color: #795E26">run</span><span style="color: #000000">()</span>
 
-<span class="hljs-built_in">console</span>.dir(deduplicator.results)</code></pre>
+<span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">dir</span><span style="color: #000000">(</span><span style="color: #001080">dedupr</span><span style="color: #000000">.</span><span style="color: #001080">results</span><span style="color: #000000">)</span>
+</code></pre>
 				<a href="#options" id="options" style="color: inherit; text-decoration: none;">
 					<h2>Options</h2>
 				</a>
 				<a href="#console" id="console" style="color: inherit; text-decoration: none;">
 					<h3>console</h3>
 				</a>
-				<p>Enable or disable logging to the console. Enabled by default, but you can disable it programatically. <strong>Important:</strong> if you disable the console logging, any error or exception found will get thrown instead, and might potentially stop the file scanning.</p>
+				<p>Enable or disable logging to the console. Enabled by default when using via the command line, but not when using it as a library / programatically.</p>
+				<a href="#folders" id="folders" style="color: inherit; text-decoration: none;">
+					<h3>folders</h3>
+				</a>
+				<p>List of folders that should be scanned. On the command line, these are the last arguments to be passed. If any of these folders do not exist, the tool will throw an exception.</p>
 				<a href="#extensions--e" id="extensions--e" style="color: inherit; text-decoration: none;">
 					<h3>extensions <em><code>-e</code></em></h3>
 				</a>
-				<p>File extensions should be scanned. Defaults to all files.</p>
+				<p>Array of file extensions that should be included. Defaults to all files.</p>
 				<a href="#output--o" id="output--o" style="color: inherit; text-decoration: none;">
 					<h3>output <em><code>-o</code></em></h3>
 				</a>
-				<p>Save results to the specified output file. Defaults to <code>dedupr.json</code> on the current folder.</p>
-				<a href="#parallel--p" id="parallel--p" style="color: inherit; text-decoration: none;">
-					<h3>parallel <em><code>-p</code></em></h3>
-				</a>
-				<p>How many files can be processed in parallel. Defaults to <code>5</code>.</p>
-				<a href="#hashsize--s" id="hashsize--s" style="color: inherit; text-decoration: none;">
-					<h3>hashSize <em><code>-s</code></em></h3>
-				</a>
-				<p>How many bytes should be hashed from the beginning and the end of each file? By default it only considers the first and last 5MB of a file, which should be good enough for the vast majority of cases.</p>
-				<a href="#hashalgorithm--h" id="hashalgorithm--h" style="color: inherit; text-decoration: none;">
-					<h3>hashAlgorithm <em><code>-h</code></em></h3>
-				</a>
-				<p>Which hashing algorithm should be used. Default is <code>sha1</code>. Some of the other possible values: &quot;sha224&quot;, &quot;sha256&quot;, &quot;sha512&quot;, &quot;md5&quot;, &quot;blake2b512&quot;.</p>
-				<a href="#filename--f" id="filename--f" style="color: inherit; text-decoration: none;">
-					<h3>filename <em><code>-f</code></em></h3>
-				</a>
-				<p>In addition to the hashing, also consider the filename to find duplicates. Meaning files will identical contents but different filenames won&#39;t be marked as duplicates. Default is <code>false</code>.</p>
+				<p>Save results to the specified output file. Defaults to <code>dedupr.json</code> on the current folder. If you want to disable saving the output, set this to <code>false</code></p>
 				<a href="#reverse--r" id="reverse--r" style="color: inherit; text-decoration: none;">
 					<h3>reverse <em><code>-r</code></em></h3>
 				</a>
 				<p>Sort folders and files from Z to A to 0 (descending). By default, they are sorted alphabetically (ascending). Please note that this also changes the order of the passed folders, so the very last occurrence of a file will be the non-duplicate.</p>
+				<a href="#filename--f" id="filename--f" style="color: inherit; text-decoration: none;">
+					<h3>filename <em><code>-f</code></em></h3>
+				</a>
+				<p>In addition to the hash value and file size, also consider the filename to find duplicates. Meaning files will identical contents but different filenames won&#39;t be marked as duplicates. Default is <code>false</code>.</p>
 				<a href="#verbose--v" id="verbose--v" style="color: inherit; text-decoration: none;">
 					<h3>verbose <em><code>-v</code></em></h3>
 				</a>
@@ -150,29 +153,45 @@
 					<h3>delete <em><code>-d</code></em></h3>
 				</a>
 				<p>Delete duplicates. Only the very first occurrence of a file will remain (or very last, if <code>reverse</code> is set). <strong>Use with caution!</strong></p>
+				<a href="#advanced-options" id="advanced-options" style="color: inherit; text-decoration: none;">
+					<h2>Advanced options</h2>
+				</a>
+				<a href="#parallel--p" id="parallel--p" style="color: inherit; text-decoration: none;">
+					<h3>parallel <em><code>-p</code></em></h3>
+				</a>
+				<p>How many files should be hashed in parallel. Defaults to <code>5</code>.</p>
+				<a href="#hashsize--s" id="hashsize--s" style="color: inherit; text-decoration: none;">
+					<h3>hashSize <em><code>-s</code></em></h3>
+				</a>
+				<p>How many bytes should be hashed from the beginning and the end of each file? Defaults to <code>2048</code>, meaning it uses the first and last 2MB of a file. Depending on your use case and the available CPU power, you might want to reduce this value.</p>
+				<a href="#hashalgorithm--h" id="hashalgorithm--h" style="color: inherit; text-decoration: none;">
+					<h3>hashAlgorithm <em><code>-h</code></em></h3>
+				</a>
+				<p>Which hashing algorithm should be used. Default is <code>sha256</code>. Some of the other possible values: &quot;sha1&quot;, &quot;sha512&quot;, &quot;md5&quot;, &quot;blake2b512&quot;.</p>
 				<a href="#shortcut-options" id="shortcut-options" style="color: inherit; text-decoration: none;">
 					<h2>Shortcut options</h2>
 				</a>
+				<p><strong>Please note that the options below will always override the <code>hashSize</code> and <code>hashAlgorithm</code> values.</strong></p>
 				<a href="#--crazyfast" id="--crazyfast" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--crazyfast</code></em></h3>
 				</a>
-				<p>Same as <code>-s 4 -h sha1</code>. Hashes only first and last 4KB of files, using SHA1. Use with caution, as this might catch lots of false positives.</p>
+				<p>Same as <code>-s 4 -h sha1</code>. Hashes the first and last 4KB of files, using SHA1. Use with caution, as this <em>might</em> catch some false positives.</p>
 				<a href="#--veryfast" id="--veryfast" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--veryfast</code></em></h3>
 				</a>
-				<p>Same as <code>-s 64 -h sha1</code>. Hashes only first and last 64KB of files, using SHA1.</p>
+				<p>Same as <code>-s 64 -h sha1</code>. Hashes the first and last 64KB of files, using SHA1.</p>
 				<a href="#--faster" id="--faster" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--faster</code></em></h3>
 				</a>
-				<p>Same as <code>-s 512 -h sha1</code>. Hashes only first and last 512KB of files, using SHA1.</p>
+				<p>Same as <code>-s 512 -h sha1</code>. Hashes the first and last 512KB of files, using SHA1.</p>
 				<a href="#--fast" id="--fast" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--fast</code></em></h3>
 				</a>
-				<p>Same as <code>-s 1024 -h sha256</code>. Hashes only first and last 1MB of files, using SHA256.</p>
+				<p>Same as <code>-s 1024 -h sha256</code>. Hashes the first and last 1MB of files, using SHA256.</p>
 				<a href="#--safe" id="--safe" style="color: inherit; text-decoration: none;">
 					<h3><em><code>--safe</code></em></h3>
 				</a>
-				<p>Same as <code>-s 32768 -h sha512</code>. Hashes only first and last 32MB of files, using SHA512.</p>
+				<p>Same as <code>-s 32768 -h sha512</code>. Hashes the first and last 32MB of files, using SHA512. Might get pretty slow if you have many big media files.</p>
 				<a href="#need-help" id="need-help" style="color: inherit; text-decoration: none;">
 					<h2>Need help?</h2>
 				</a>
@@ -182,20 +201,20 @@
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
 				<ul>
-					<li class="globals  ">
-						<a href="globals.html"><em>Globals</em></a>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_src_cmd_.html">&quot;src/cmd&quot;</a>
+						<a href="modules/cmd.html">cmd</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_src_index_.html">&quot;src/index&quot;</a>
+						<a href="modules/index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_src_types_.html">&quot;src/types&quot;</a>
+						<a href="modules/types.html">types</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="modules/_src_utils_.html">&quot;src/utils&quot;</a>
+						<a href="modules/utils.html">utils</a>
 					</li>
 				</ul>
 			</nav>
@@ -211,8 +230,6 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
 				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
 			</ul>
 			<ul class="tsd-legend">
