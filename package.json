@@ -14,6 +14,10 @@
     "bin": {
         "dedupr": "./bin/dedupr"
     },
+    "scripts": {
+        "prepublishOnly": "./node_modules/.bin/tsc --removeComments",
+        "docs": "make docs"
+    },
     "engines": {
         "node": ">=12.0"
     },
