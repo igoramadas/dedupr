@@ -3,8 +3,6 @@
 .vscode
 .git*
 docs/
-lib/
 node_modules/
 src/
-test/
 dedupr.json
