@@ -16,7 +16,7 @@ docs:
 	rm -rf ./docs/classes
 	rm -rf ./docs/interfaces
 	rm -rf ./docs/modules
-	$(TYPEDOC) --disableOutputCheck
+	$(TYPEDOC)
 	cp ./CNAME ./docs/CNAME
 
 # Update dependencies

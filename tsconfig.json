@@ -16,8 +16,8 @@
         "entryPoints": ["./src/"],
         "excludeExternals": true,
         "excludePrivate": true,
-        "mode": "modules",
         "name": "Dedupr",
-        "out": "docs"
+        "out": "docs",
+        "gaID": "UA-9331973-4"
     }
 }
