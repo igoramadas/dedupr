@@ -12,7 +12,7 @@ const currentFolder = process.cwd() + "/"
 // Default options.
 const defaultOptions: Options = {
     output: "dedupr.json",
-    parallel: 5,
+    parallel: 3,
     hashSize: 2048,
     hashAlgorithm: "sha256"
 }
@@ -46,7 +46,7 @@ export class Dedupr {
         }
 
         // Do not save output?
-        if (this.options.output == "false"){
+        if (this.options.output == "false") {
             this.options.output = null
         }
 
@@ -111,6 +111,9 @@ export class Dedupr {
                 this.options.folders[i] = path.join(currentFolder, folder)
             }
         }
+
+        // Sort folders alphabetically by default.
+        this.options.folders.sort()
 
         // Reverse folder order if option was passed.
         if (this.options.reverse) {
@@ -234,13 +237,15 @@ export class Dedupr {
     scanFile = async (fileToHash: FileToHash): Promise<void> => {
         try {
             const hash = crypto.createHash(this.options.hashAlgorithm)
+
             let hasEnd = true
-            let size = this.options.hashSize * 1024
+            let totalSize = this.options.hashSize * 1024
+            let size = Math.round(totalSize / 2)
 
             // If file is small enough, hash it all at once.
-            if (fileToHash.size < size * 2) {
+            if (fileToHash.size < totalSize) {
                 hasEnd = false
-                size = fileToHash.size
+                totalSize = fileToHash.size
             }
 
             const fd = await fs.promises.open(fileToHash.file, "r")
@@ -251,7 +256,7 @@ export class Dedupr {
 
             // If file is bigger than the specified hash size, read the last portion.
             if (hasEnd) {
-                const pos = fileToHash.size - this.options.hashSize * 1024
+                const pos = fileToHash.size - size
                 const fEnd = await fd.read(Buffer.alloc(size), 0, size, pos)
                 hash.update(fEnd.buffer)
             }

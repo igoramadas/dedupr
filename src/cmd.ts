@@ -2,8 +2,8 @@
 
 import {hasValue, logError} from "./utils"
 import Dedupr from "./index"
-import yargs = require("yargs")
-import yargsIntance = require("yargs/yargs")
+import yargs from "yargs"
+import yargsIntance from "yargs/yargs"
 
 // Unhandled rejections goes here.
 process.on("unhandledRejection", (err) => {
@@ -20,15 +20,19 @@ export = async function () {
         r: {alias: "reverse", type: "boolean", describe: "Reverse the folders and files order (alphabetically descending)"},
         f: {alias: "filename", type: "boolean", describe: "Also consider filenames to check if a file is a duplicate"},
         d: {alias: "delete", type: "boolean", describe: "Delete duplicate files"},
-        p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 5)"},
+        p: {alias: "parallel", type: "number", describe: "How many files processed in parallel (default 3)"},
         s: {alias: "size", type: "number", describe: "How much data (kilobytes) to hash from start and end of each file"},
         h: {alias: "hash", type: "string", describe: "Hash algorithm, default is sha1"},
         crazyfast: {type: "boolean", describe: "Shortcut to --size 4, --hash sha1"},
         veryfast: {type: "boolean", describe: "Shortcut to --size 64, --hash sha1"},
         faster: {type: "boolean", describe: "Shortcut to --size 512, --hash sha1"},
         fast: {type: "boolean", describe: "Shortcut to --size 1024, --hash sha256"},
-        safe: {type: "boolean", describe: "Shortcut to --size 32768, --hash sha512"}
+        safe: {type: "boolean", describe: "Shortcut to --size 32768, --hash sha256"},
+        safer: {type: "boolean", describe: "Shortcut to --size 131072, --hash sha512"}
     })
+
+    // Arguments shortcut.
+    const argv = argOptions.parseSync()
 
     // Option grouping.
     argOptions.group(["e", "o", "r", "f", "d"], "Options:")
@@ -51,33 +55,36 @@ export = async function () {
     // Transform arguments to options.
     let options: Options = {
         console: true,
-        folders: argOptions.argv._ as string[],
-        extensions: hasValue(argOptions.argv.e) ? (argOptions.argv.e as string[]) : null,
-        output: hasValue(argOptions.argv.o) ? argOptions.argv.o : null,
-        verbose: hasValue(argOptions.argv.v) ? argOptions.argv.v : null,
-        reverse: hasValue(argOptions.argv.r) ? argOptions.argv.r : null,
-        filename: hasValue(argOptions.argv.f) ? argOptions.argv.f : null,
-        delete: hasValue(argOptions.argv.d) ? argOptions.argv.d : null,
-        parallel: hasValue(argOptions.argv.p) ? argOptions.argv.p : null,
-        hashSize: hasValue(argOptions.argv.s) ? argOptions.argv.s : null,
-        hashAlgorithm: hasValue(argOptions.argv.h) ? argOptions.argv.h : null
+        folders: argv._ as string[],
+        extensions: hasValue(argv.e) ? (argv.e as string[]) : null,
+        output: hasValue(argv.o) ? argv.o : null,
+        verbose: hasValue(argv.v) ? argv.v : null,
+        reverse: hasValue(argv.r) ? argv.r : null,
+        filename: hasValue(argv.f) ? argv.f : null,
+        delete: hasValue(argv.d) ? argv.d : null,
+        parallel: hasValue(argv.p) ? argv.p : null,
+        hashSize: hasValue(argv.s) ? argv.s : null,
+        hashAlgorithm: hasValue(argv.h) ? argv.h : null
     }
 
-    // Hash size shortcuts (crazyfast 4KB MD5, superfast 64KB SHA1, faster 512KB SHA1, fast 1MB SHA1, safe 48MB SHA412).
-    if (argOptions.argv.crazyfast) {
+    // Hash size shortcuts (crazyfast 4KB, superfast 64KB, faster 512KB, fast 1MB, safe 32MB, safer 128MB).
+    if (argv.crazyfast) {
         options.hashSize = 4
         options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.veryfast) {
+    } else if (argv.veryfast) {
         options.hashSize = 64
         options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.faster) {
+    } else if (argv.faster) {
         options.hashSize = 512
         options.hashAlgorithm = "sha1"
-    } else if (argOptions.argv.fast) {
+    } else if (argv.fast) {
         options.hashSize = 1024
         options.hashAlgorithm = "sha256"
-    } else if (argOptions.argv.safe) {
+    } else if (argv.safe) {
         options.hashSize = 32768
+        options.hashAlgorithm = "sha256"
+    } else if (argv.safer) {
+        options.hashSize = 131072
         options.hashAlgorithm = "sha512"
     }
 
