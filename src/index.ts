@@ -145,7 +145,7 @@ export class Dedupr {
             const results = Object.values(this.results)
 
             // Filter only files that had duplicates, excluding error entries.
-            const duplicates = results.filter((r) => r?.duplicates.length > 0)
+            const duplicates = results.filter((r) => r.duplicates?.length > 0)
             const count = duplicates.map((d) => d.duplicates.length).reduce((a, b) => a + b, 0)
 
             logInfo(this.options, `Found ${results.length} distinct files and ${count} duplicates`)
