@@ -144,8 +144,8 @@ export class Dedupr {
         try {
             const results = Object.values(this.results)
 
-            // Filter only file that had duplicates.
-            const duplicates = results.filter((r) => r.duplicates.length > 0)
+            // Filter only files that had duplicates, excluding error entries.
+            const duplicates = results.filter((r) => r?.duplicates.length > 0)
             const count = duplicates.map((d) => d.duplicates.length).reduce((a, b) => a + b, 0)
 
             logInfo(this.options, `Found ${results.length} distinct files and ${count} duplicates`)
@@ -249,21 +249,23 @@ export class Dedupr {
             }
 
             const fd = await fs.promises.open(fileToHash.file, "r")
+            try {
+                // Read first part of the file.
+                const fStart = await fd.read(Buffer.alloc(size), 0, size, 0)
+                hash.update(fStart.buffer)
 
-            // Read first part of the file.
-            const fStart = await fd.read(Buffer.alloc(size), 0, size, 0)
-            hash.update(fStart.buffer)
+                // If file is bigger than the specified hash size, read the last portion.
+                if (hasEnd) {
+                    const pos = fileToHash.size - size
+                    const fEnd = await fd.read(Buffer.alloc(size), 0, size, pos)
+                    hash.update(fEnd.buffer)
+                }
 
-            // If file is bigger than the specified hash size, read the last portion.
-            if (hasEnd) {
-                const pos = fileToHash.size - size
-                const fEnd = await fd.read(Buffer.alloc(size), 0, size, pos)
-                hash.update(fEnd.buffer)
+                // Check duplicates.            
+                this.processFile(fileToHash, hash.digest("hex"))
+            } finally {
+                await fd.close();
             }
-
-            // Close file and check duplicates.
-            await fd.close()
-            this.processFile(fileToHash, hash.digest("hex"))
         } catch (ex) {
             logError(this.options, `Error reading: ${fileToHash.file}`, ex)
             this.processFile(fileToHash, null, ex.message || ex.toString())
