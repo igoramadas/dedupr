@@ -21,7 +21,7 @@ docs:
 
 # Update dependencies
 update:
-	-ncu -u
+	-ncu -u --target minor
 	npm install
 
 # Publish to NPM
