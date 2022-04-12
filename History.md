@@ -1,5 +1,11 @@
 # Changelog for Dedupr
 
+2.0.1
+=====
+* Better handling of unsynchronized (cloud / virtual) files. (by @noomorph)
+* File permissions issue fixed. (by @noomorph)
+* Updated dependencies.
+
 2.0.0
 =====
 * Full rewrite of the tool using TypeScript, now renamed to Dedupr.

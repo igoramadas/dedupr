@@ -1,6 +1,6 @@
 // DEDUPR
 
-import {logDebug, logError, logInfo, hasValue} from "./utils"
+import {logDebug, logError, logInfo, logWarn, hasValue} from "./utils"
 import crypto = require("crypto")
 import fs = require("fs")
 import logger = require("anyhow")
@@ -250,7 +250,6 @@ export class Dedupr {
 
             const fd = await fs.promises.open(fileToHash.file, "r")
             try {
-                // Read first part of the file.
                 const fStart = await fd.read(Buffer.alloc(size), 0, size, 0)
                 hash.update(fStart.buffer)
 
@@ -261,10 +260,12 @@ export class Dedupr {
                     hash.update(fEnd.buffer)
                 }
 
-                // Check duplicates.            
+                // Check duplicates.
                 this.processFile(fileToHash, hash.digest("hex"))
+            } catch (fdEx) {
+                logWarn(this.options, `Failed to open: ${fileToHash.file} - ${fdEx.toString()}`)
             } finally {
-                await fd.close();
+                await fd.close()
             }
         } catch (ex) {
             logError(this.options, `Error reading: ${fileToHash.file}`, ex)

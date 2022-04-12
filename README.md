@@ -47,7 +47,7 @@ Delete duplicate images considering filenames, reverse order, MD5 hashing only t
 
 ## Importing as a library
 
-```javascript
+```typescript
 import Dedupr from "dedupr"
 // const Dedupr = require("dedupr").default
 
