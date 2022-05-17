@@ -1,5 +1,9 @@
 # Changelog for Dedupr
 
+2.0.2
+=====
+* Updated dependencies, fixing the occasional "cannot find module util/types" bug.
+
 2.0.1
 =====
 * Better handling of unsynchronized (cloud / virtual) files. (by @noomorph)
